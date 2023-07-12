@@ -1,0 +1,62 @@
+version: "3.3"
+services:
+
+  backend:
+    image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_started
+    env_file:
+      - .env
+    environment:
+      - SERVER_NAME=${DOMAIN?Variable not set}
+      - SERVER_HOST=https://${DOMAIN?Variable not set}
+      # Allow explicit env var override for tests
+      - SMTP_HOST=${SMTP_HOST}
+    build:
+      context: .
+    command:  python main.py
+    volumes:
+      - .:/api
+    ports:
+      - 8069:8080
+  db:
+    container_name: myrkle_db
+    image: postgres:12.3-alpine
+    restart: always
+    environment:
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_USER: postgres
+        POSTGRES_DB: postgres
+        PGDATA: /var/lib/postgresql/data/myrkle_db
+    volumes:
+        - ~/Documents/dev/docker/DockerVolumes/myrkle-db:/var/lib/postgresql/data/myrkle_db
+    ports:
+      - 5432:5432
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    hostname: "0.0.0.0"
+    ports:
+      - 5672:5672
+      - 4329:4329
+      - 15672:15672
+    tty: true
+    stdin_open: true
+    healthcheck:
+      test: ["CMD", "ls"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 4s
+  adminer:
+    container_name: adminerprueba
+    image: dockette/adminer
+    restart: always
+    ports:
+      - 6969:80
+    environment:
+      - UPLOAD=4096M
+      - MEMORY=512M
