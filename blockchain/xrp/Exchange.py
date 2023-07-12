@@ -7,9 +7,9 @@ from xrpl.models import (XRP, AccountOffers, AMMCreate, AMMVote, BookOffers,
 from xrpl.utils import drops_to_xrp, xrp_to_drops
 from xrpl.wallet import Wallet
 
-from Misc import (amm_fee_to_xrp_format, mm,
+from .Misc import (amm_fee_to_xrp_format, mm,
                   validate_hex_to_symbol)
-from x_constants import M_SOURCE_TAG
+from .x_constants import M_SOURCE_TAG
 
 """
 Swap objects
@@ -259,10 +259,10 @@ class xAmm(JsonRpcClient):
         
 # from Wallet import Transaction, Wallet, sign_and_submit
 
-tw = Wallet("sEd7K2Qve1VGS1MqKtYfeY2SEggaPGD",0) 
+# tw = Wallet("sEd7K2Qve1VGS1MqKtYfeY2SEggaPGD",0) 
 
 # add1 = "rw787k9xc1sTmYN151btHFiCjKUA6zrgvT"
-o = xOrderBookExchange("https://s.altnet.rippletest.net:51234", "", "")
+# o = xOrderBookExchange("https://s.altnet.rippletest.net:51234", "", "")
 # of = o.create_order_book_liquidity(
 #     tw.classic_address,
 #     10.0,
@@ -278,7 +278,7 @@ o = xOrderBookExchange("https://s.altnet.rippletest.net:51234", "", "")
 #     ),
 #     10.0,
 # )), tw, o.client))
-print(o.get_account_order_book_liquidity(tw.classic_address))
+# print(o.get_account_order_book_liquidity(tw.classic_address))
 
 
 # req = AccountOffers(account="rBEvLUA3AksHBknWJVrUz7VZPTsGan81y2", ledger_index="validated")

@@ -8,8 +8,8 @@ from xrpl.models import (AccountObjects, IssuedCurrencyAmount, NFTBuyOffers,
                          NFTSellOffers)
 from xrpl.utils import drops_to_xrp, ripple_time_to_datetime, xrp_to_drops
 
-from Misc import mm
-from x_constants import M_SOURCE_TAG
+from .Misc import mm
+from .x_constants import M_SOURCE_TAG
 
 """nft handler"""
 

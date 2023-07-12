@@ -4,7 +4,7 @@ from xrpl.models import AccountInfo, LedgerEntry, Tx
 from xrpl.models.requests.ledger_entry import Offer
 from xrpl.utils import drops_to_xrp, ripple_time_to_datetime
 
-from Misc import (hex_to_symbol, token_market_info, validate_hex_to_symbol,
+from .Misc import (hex_to_symbol, token_market_info, validate_hex_to_symbol,
                   xrp_format_to_nft_fee, xrp_format_to_transfer_fee)
 
 
@@ -285,15 +285,15 @@ class xInfo(JsonRpcClient):
 
 
 
-i = xInfo(
-"https://s.altnet.rippletest.net:51234","","")
-
-pay_dict = {}
-query = Tx(transaction="B656E90555DB1A8F6C5E2079769521E077BBAC8C3E19EACF73B6EDAE11231E77")
-# i.toMainnet()
-result = i.client.request(query).result
-print(result)
-
-print(hex_to_symbol("546869732069732061206D656D6F"))
-print(hex_to_symbol("746578742F706C61696E"))
-print(hex_to_symbol("4465736372697074696F6E"))
+# i = xInfo(
+# "https://s.altnet.rippletest.net:51234","","")
+#
+# pay_dict = {}
+# query = Tx(transaction="B656E90555DB1A8F6C5E2079769521E077BBAC8C3E19EACF73B6EDAE11231E77")
+# # i.toMainnet()
+# result = i.client.request(query).result
+# print(result)
+#
+# print(hex_to_symbol("546869732069732061206D656D6F"))
+# print(hex_to_symbol("746578742F706C61696E"))
+# print(hex_to_symbol("4465736372697074696F6E"))

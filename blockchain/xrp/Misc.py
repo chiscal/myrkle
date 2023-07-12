@@ -22,7 +22,7 @@ from xrpl.utils import (
 )
 from xrpl.wallet import Wallet, generate_faucet_wallet
 
-from x_constants import (
+from .x_constants import (
     ACCOUNT_ROOT_FLAGS,
     D_DATA,
     D_TYPE,
