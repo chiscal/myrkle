@@ -9,4 +9,4 @@ COPY . /api
 RUN pip install -r requirements.txt
 ENV PYTHONPATH=/api
 
-ENTRYPOINT ["./run.sh]
+ENTRYPOINT ["./run.sh"]
