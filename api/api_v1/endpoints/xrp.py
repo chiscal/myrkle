@@ -23,7 +23,7 @@ router = APIRouter()
 @router.get("/get_balance/{wallet_address}", response_model=Any)
 def get_balance(
     wallet_address: str,
-    current_user: models.User = Depends(deps.get_current_user), 
+    
     ) -> Dict:
     client = XRPWalletClient()
     balance = client.get_balance(wallet_address)
@@ -32,7 +32,6 @@ def get_balance(
 @router.get("/get_tokens/{wallet_address}", response_model=Dict)
 def get_wallet_tokens(
     wallet_address: str,
-    current_user: models.User = Depends(deps.get_current_user),
     ) -> Dict:
     client = XRPWalletClient()
     tokens = client.get_tokens(wallet_address)
@@ -41,7 +40,7 @@ def get_wallet_tokens(
 @router.get("/get_nfts/{wallet_address}", response_model=Dict)
 def get_wallet_nfts(
     wallet_address: str,
-    current_user: models.User = Depends(deps.get_current_user),
+    
     ) -> Dict:
     client = XRPWalletClient()
     nfts = client.get_tokens(wallet_address)
@@ -50,7 +49,7 @@ def get_wallet_nfts(
 @router.get("/get_transactions/{wallet_address}", response_model=Dict)
 def get_wallet_transactions(
     wallet_address: str,
-    current_user: models.User = Depends(deps.get_current_user), 
+    
     ) -> Dict:
     client = XRPWalletClient()
     transactions = client.get_transactions(wallet_address)
@@ -59,7 +58,7 @@ def get_wallet_transactions(
 @router.get("/get_token_transactions/{wallet_address}", response_model=Dict)
 def get_token_transactions(
     wallet_address: str,
-    current_user: models.User = Depends(deps.get_current_user),
+    
     ) -> Dict:
     client = XRPWalletClient()
     token_transactions = client.get_token_transactions(wallet_address)
@@ -70,7 +69,7 @@ def send_xrp(
     *,
     db: Session = Depends(deps.get_db),
     transaction: xrp.SendXRP,
-    current_user: models.User = Depends(deps.get_current_user),
+    
     ) -> Any:
 
     client = XRPWalletClient()
@@ -82,26 +81,26 @@ def send_xrp(
         source_tag=transaction.source_tag,
         fee=transaction.fee
     )
-    record = transaction_schema.Transaction(
-        user_id=current_user.id,
-        transaction_id=send[""],
-        network="xrp",
-        currency=transaction.token,
-        amount=transaction.amount,
-        transaction_type="send_token",
-        receipient=transaction.receiver_addr
-    )
+    # record = transaction_schema.Transaction(
+    #     user_id=
+    #     transaction_id=send[""],
+    #     network="xrp",
+    #     currency=transaction.token,
+    #     amount=transaction.amount,
+    #     transaction_type="send_token",
+    #     receipient=transaction.receiver_addr
+    # )
 
-    entry = crud.transaction.create(db=db, obj_in=record)
+    # entry = crud.transaction.create(db=db, obj_in=record)
 
-    return entry
+    return send
 
 @router.post("/send_token/", response_model=transaction_schema.Transaction)
 def send_token(
     *,
     db: Session = Depends(deps.get_db),
     transaction: xrp.SendToken,
-    current_user: models.User = Depends(deps.get_current_user),
+    
     ) -> Any:
 
     client = XRPWalletClient()
@@ -116,24 +115,24 @@ def send_token(
         source_tag=transaction.source_tag,
         fee=transaction.fee
     )
-    record = transaction_schema.Transaction(
-        user_id=current_user.id,
-        transaction_id=send[""],
-        network="xrp",
-        currency=transaction.token,
-        amount=transaction.amount,
-        transaction_type="send_token",
-        receipient=transaction.receiver_addr
-    )
+    # record = transaction_schema.Transaction(
+    #     user_id=
+    #     transaction_id=send[""],
+    #     network="xrp",
+    #     currency=transaction.token,
+    #     amount=transaction.amount,
+    #     transaction_type="send_token",
+    #     receipient=transaction.receiver_addr
+    # )
 
-    entry = crud.transaction.create(db=db, obj_in=record)
+    # entry = crud.transaction.create(db=db, obj_in=record)
 
-    return entry
+    return send
 
 @router.post("/create_token/", response_model=Dict)
 def create_token(
     create_token: xrp.CreateToken,
-    current_user: models.User = Depends(deps.get_current_user),
+    
     ) -> Dict:
     client = XRPAssetClient()
     token = client.create_token(
@@ -148,7 +147,7 @@ def create_token(
 @router.post("/burn_token/", response_model=Dict)
 def burn_token(
     burn: xrp.BurnToken,
-    current_user: models.User = Depends(deps.get_current_user),
+    
     ) -> Dict:
     client = XRPAssetClient()
     burn = client.burn_token(
@@ -163,7 +162,7 @@ def burn_token(
 @router.post("/mint_nft/", response_model=Dict)
 def mint_nft(
     nft: xrp.MintNFT,
-    current_user: models.User = Depends(deps.get_current_user), 
+    
     ) -> Dict:
     client = XRPAssetClient()
     mint = client.mint_nft(
@@ -181,7 +180,7 @@ def mint_nft(
 @router.post("/burn_nft/", response_model=Dict)
 def burn_nft(
     nft: xrp.BurnNFT,
-    current_user: models.User = Depends(deps.get_current_user),
+    
     ) -> Dict:
     client = XRPAssetClient()
     burn = client.burn_nft(
@@ -195,7 +194,7 @@ def burn_nft(
 @router.post("/create_xrp_check/", response_model=Dict)
 def create_xrp_check(
     check: xrp.CreateXRPCheck,
-    current_user: models.User = Depends(deps.get_current_user), 
+    
     ) -> Dict:
     client = XRPObjectClient()
     xrp_check = client.create_xrp_check(
@@ -211,7 +210,7 @@ def create_xrp_check(
 def get_account_checks(
     wallet_address: str,
     limit: int = None,
-    current_user: models.User = Depends(deps.get_current_user),
+    
     ) -> Dict:
     client = XRPObjectClient()
     account_checks = client.account_checks(
@@ -224,7 +223,7 @@ def get_account_checks(
 def get_account_escrows(
     wallet_address: str,
     limit: int = None,
-    current_user: models.User = Depends(deps.get_current_user),
+    
     ) -> Dict:
     client = XRPObjectClient()
     account_escrows = client.account_xrp_escrows(
@@ -236,7 +235,7 @@ def get_account_escrows(
 @router.post("/create_offer/", response_model=Dict)
 def create_offer(
     offer: xrp.CreateOffer,
-    current_user: models.User = Depends(deps.get_current_user),
+    
     ) -> Dict:
     client = XRPObjectClient()
     offer = client.create_offer(
@@ -252,7 +251,7 @@ def create_offer(
 def account_offers(
     wallet_addr: str,
     limit: int,
-    current_user: models.User = Depends(deps.get_current_user), 
+    
     ) -> Dict:
     client = XRPObjectClient()
     offers = client.account_offers(
@@ -264,7 +263,7 @@ def account_offers(
 @router.post("/cancel_offer/", response_model=Dict)
 def cancel_offer(
     cancel_offer: xrp.CancelOffer,
-    current_user: models.User = Depends(deps.get_current_user),
+    
     ) -> Dict:
     client = XRPObjectClient()
     cancel = client.cancel_offer(
@@ -279,7 +278,7 @@ def all_offers(
     pay: float,
     receive: float,
     limit: int,
-    current_user: models.User = Depends(deps.get_current_user),
+    
     ) -> list:
     client = XRPObjectClient()
     offers = client.all_offers(
