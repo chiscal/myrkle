@@ -9,6 +9,7 @@ class SendXRP(BaseModel):
     amount: Union[float, int, Decimal]
     destination_tag: int = None
     source_tag: int = None
+    fee: int = None
 
 
 class SendToken(BaseModel):
