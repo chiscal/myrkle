@@ -74,8 +74,8 @@ def send_xrp(
 
     client = XRPWalletClient()
     send = client.send_xrp(
-        sender_address=transaction.sender_address,
-        receiver_address=transaction.receiver_address,
+        sender_addr=transaction.sender_address,
+        receiver_addr=transaction.receiver_address,
         amount=transaction.amount,
         destination_tag=transaction.destination_tag,
         source_tag=transaction.source_tag,
