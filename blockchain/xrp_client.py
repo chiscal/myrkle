@@ -30,43 +30,79 @@ class XRPWalletClient():
     # getters
 
     def get_balance(self, address: str):
-        self.wallet.xrp_balance(address)
+        try:
+            return self.wallet.xrp_balance(address)
+        except Exception as exception:
+            raise ValueError(f"Error while running get balance, {str(exception)}")
 
     def get_transactions(self, address: str):
-        return self.wallet.payment_transactions(address)
+        try:
+            return self.wallet.payment_transactions(address)
+        except Exception as exception:
+            raise ValueError(f"Error while running get transactions, {str(exception)}")
     
     def get_token_transactions(self, address: str, limit: int=None):
-        return self.wallet.token_transactions(address, limit)
+        try:
+            return self.wallet.token_transactions(address, limit)
+        except Exception as exception:
+            raise ValueError(f"Error while running get token transactions, {str(exception)}")
     
     def get_xrp_transactions(self, address:str, limit: int=None):
-        return self.wallet.xrp_transactions(address, limit)
+        try:
+            return self.wallet.xrp_transactions(address, limit)
+        except Exception as exception:
+            raise ValueError(f"Error while running get xrp transactions, {str(exception)}")
 
     def get_payment_transactions(self, address:str, limit: int=None):
-        return self.wallet.payment_transactions(address, limit)
+        try:
+            return self.wallet.payment_transactions(address, limit)
+        except Exception as exception:
+            raise ValueError(f"Error while running get payment transactions, {str(exception)}")
 
     def get_tokens(self, address: str):
-        return self.wallet.account_tokens(address)
+        try:
+            return self.wallet.account_tokens(address)
+        except Exception as exception:
+            raise ValueError(f"Error while running get tokens, {str(exception)}")
     
     def get_nfts(self, address: str, limit: int=None):
-        return self.wallet.account_nfts(address, limit)
+        try:
+            return self.wallet.account_nfts(address, limit)
+        except Exception as exception:
+            raise ValueError(f"Error while running get nfts, {str(exception)}")
 
     def get_root_flags(self, address: str):
-        return self.wallet.account_root_flags(address)
+        try:
+            return self.wallet.account_root_flags(address)
+        except Exception as exception:
+            raise ValueError(f"Error while running get root flags, {str(exception)}")
     
     # senders
     def send_xrp(self, sender_addr: str, receiver_addr: str, amount: Union[float, Decimal, int],
         destination_tag: int = None, source_tag: int = None, fee: str = None):
-        return self.wallet.send_xrp(sender_addr, receiver_addr, amount, destination_tag, source_tag, fee)
+        try:
+            return self.wallet.send_xrp(sender_addr, receiver_addr, amount, destination_tag, source_tag, fee)
+        except Exception as exception:
+            raise ValueError(f"Error while running send xrp, {str(exception)}")
     
     def send_token(self, sender_addr: str, receiver_addr: str, token: str, amount: str, issuer: str, is_lp_token: bool = False,
         destination_tag: int = None, source_tag: int = None, fee: str = None) -> dict:
-        return self.wallet.send_token(sender_addr, receiver_addr, token, amount, issuer, is_lp_token, destination_tag, source_tag, fee)
+        try:
+            return self.wallet.send_token(sender_addr, receiver_addr, token, amount, issuer, is_lp_token, destination_tag, source_tag, fee)
+        except Exception as exception:
+            raise ValueError(f"Error while running send token, {str(exception)}")
     
     def send_nft(self, sender_addr: str, nftoken_id: str, receiver: str, fee: str = None):
-        return self.wallet.send_nft(sender_addr, nftoken_id, receiver, fee)
+        try:
+            return self.wallet.send_nft(sender_addr, nftoken_id, receiver, fee)
+        except Exception as exception:
+            raise ValueError(f"Error while running send nft, {str(exception)}")
     
     def receive_nft(self, sender_addr: str, nft_sell_id: str, fee: str):
-        return self.receive_nft(sender_addr, nft_sell_id, fee)
+        try:
+            return self.receive_nft(sender_addr, nft_sell_id, fee)
+        except Exception as exception:
+            raise ValueError(f"Error while running receive nft, {str(exception)}")
 
 
 class XRPAssetClient():

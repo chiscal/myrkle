@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from api import deps
 
@@ -34,7 +34,10 @@ def get_wallet_tokens(
     wallet_address: str,
     ) -> Dict:
     client = XRPWalletClient()
-    tokens = client.get_tokens(wallet_address)
+    try:
+        tokens = client.get_tokens(wallet_address)
+    except Exception as exception:
+        raise HTTPException(status_code=400, detail=str(exception))
     return tokens
 
 @router.get("/get_nfts/{wallet_address}", response_model=Dict)
@@ -43,7 +46,10 @@ def get_wallet_nfts(
     
     ) -> Dict:
     client = XRPWalletClient()
-    nfts = client.get_tokens(wallet_address)
+    try:
+        nfts = client.get_tokens(wallet_address)
+    except Exception as exception:
+        raise HTTPException(status_code=400, detail=str(exception))
     return nfts
 
 @router.get("/get_transactions/{wallet_address}", response_model=Dict)
@@ -52,7 +58,10 @@ def get_wallet_transactions(
     
     ) -> Dict:
     client = XRPWalletClient()
-    transactions = client.get_transactions(wallet_address)
+    try:
+        transactions = client.get_transactions(wallet_address)
+    except Exception as exception:
+        raise HTTPException(status_code=400, detail=str(exception))
     return transactions
 
 @router.get("/get_token_transactions/{wallet_address}", response_model=Dict)
@@ -61,7 +70,10 @@ def get_token_transactions(
     
     ) -> Dict:
     client = XRPWalletClient()
-    token_transactions = client.get_token_transactions(wallet_address)
+    try:
+        token_transactions = client.get_token_transactions(wallet_address)
+    except Exception as exception:
+        raise HTTPException(status_code=400, detail=str(exception))
     return token_transactions   
 
 @router.post("/send_xrp/", response_model=transaction_schema.Transaction)
@@ -73,7 +85,8 @@ def send_xrp(
     ) -> Any:
 
     client = XRPWalletClient()
-    send = client.send_xrp(
+    try:
+        send = client.send_xrp(
         sender_addr=transaction.sender_address,
         receiver_addr=transaction.receiver_address,
         amount=transaction.amount,
@@ -81,6 +94,8 @@ def send_xrp(
         source_tag=transaction.source_tag,
         fee=transaction.fee
     )
+    except Exception as exception:
+        raise HTTPException(status_code=400, detail=str(exception))
     # record = transaction_schema.Transaction(
     #     user_id=
     #     transaction_id=send[""],
@@ -104,7 +119,8 @@ def send_token(
     ) -> Any:
 
     client = XRPWalletClient()
-    send = client.send_token(
+    try:
+        send = client.send_token(
         sender_addr=transaction.sender_address,
         receiver_addr=transaction.receiver_addr,
         token=transaction.token,
@@ -115,6 +131,8 @@ def send_token(
         source_tag=transaction.source_tag,
         fee=transaction.fee
     )
+    except Exception as exception:
+        raise HTTPException(status_code=400, detail=str(exception))
     # record = transaction_schema.Transaction(
     #     user_id=
     #     transaction_id=send[""],
@@ -135,13 +153,18 @@ def create_token(
     
     ) -> Dict:
     client = XRPAssetClient()
-    token = client.create_token(
+    try:
+        token = client.create_token(
         issuer_addr=create_token.issuer_addr,
         manager_addr=create_token.manager_addr,
         token_name=create_token.token_name,
         total_supply=create_token.total_supply,
         fee=create_token.fee
     )
+    
+    
+    except Exception as exception:
+        raise HTTPException(status_code=400, detail=str(exception))
     return token
 
 @router.post("/burn_token/", response_model=Dict)
@@ -150,13 +173,18 @@ def burn_token(
     
     ) -> Dict:
     client = XRPAssetClient()
-    burn = client.burn_token(
+    try:
+        burn = client.burn_token(
         sender_addr=burn.sender_addr,
         token=burn.token,
         issuer=burn.issuer,
         amount=burn.amount,
         fee=burn.fee
     )
+    
+    
+    except Exception as exception:
+        raise HTTPException(status_code=400, detail=str(exception))
     return burn
 
 @router.post("/mint_nft/", response_model=Dict)
@@ -165,7 +193,8 @@ def mint_nft(
     
     ) -> Dict:
     client = XRPAssetClient()
-    mint = client.mint_nft(
+    try:
+        mint = client.mint_nft(
         issuer_addr=nft.issuer_addr,
         taxon=nft.taxon,
         is_transferable=nft.is_transferable,
@@ -175,6 +204,10 @@ def mint_nft(
         uri=nft.uri,
         fee=nft.fee
     )
+    
+    
+    except Exception as exception:
+        raise HTTPException(status_code=400, detail=str(exception))
     return mint
 
 @router.post("/burn_nft/", response_model=Dict)
@@ -183,12 +216,17 @@ def burn_nft(
     
     ) -> Dict:
     client = XRPAssetClient()
-    burn = client.burn_nft(
+    try:
+        burn = client.burn_nft(
         sender_addr=nft.sender_addr,
         nftoken_id=nft.nftoken_id,
         holder=nft.holder,
         fee=nft.fee
     )
+    
+    
+    except Exception as exception:
+        raise HTTPException(status_code=400, detail=str(exception))
     return burn
 
 @router.post("/create_xrp_check/", response_model=Dict)
@@ -197,13 +235,18 @@ def create_xrp_check(
     
     ) -> Dict:
     client = XRPObjectClient()
-    xrp_check = client.create_xrp_check(
+    try:
+        xrp_check = client.create_xrp_check(
         sender_addr=check.sender_addr,
         receiver_addr=check.receiver_addr,
         amount=check.amount,
         expiry_date=check.expiry_date,
         fee=check.fee
     )
+    
+    
+    except Exception as exception:
+        raise HTTPException(status_code=400, detail=str(exception))
     return xrp_check
 
 @router.get("/account_checks/", response_model=Dict)
@@ -213,10 +256,15 @@ def get_account_checks(
     
     ) -> Dict:
     client = XRPObjectClient()
-    account_checks = client.account_checks(
+    try:
+        account_checks = client.account_checks(
         wallet_addr=wallet_address,
         limit=limit
     )
+    
+    
+    except Exception as exception:
+        raise HTTPException(status_code=400, detail=str(exception))
     return account_checks
 
 @router.get("/account_escrow/", response_model=Dict)
@@ -226,10 +274,14 @@ def get_account_escrows(
     
     ) -> Dict:
     client = XRPObjectClient()
-    account_escrows = client.account_xrp_escrows(
+    try:
+        account_escrows = client.account_xrp_escrows(
         wallet_addr=wallet_address,
         limit=limit
     )
+    
+    except Exception as exception:
+        raise HTTPException(status_code=400, detail=str(exception))
     return account_escrows
 
 @router.post("/create_offer/", response_model=Dict)
@@ -238,13 +290,17 @@ def create_offer(
     
     ) -> Dict:
     client = XRPObjectClient()
-    offer = client.create_offer(
+    try:
+        offer = client.create_offer(
         sender_addr=offer.sender_addr,
         pay=offer.pay,
         receive=offer.receive,
         expiry_date=offer.expiry_date,
         fee=offer.fee
     )
+    
+    except Exception as exception:
+        raise HTTPException(status_code=400, detail=str(exception))
     return offer
 
 @router.get("/account_offers/", response_model=Dict)
@@ -254,10 +310,13 @@ def account_offers(
     
     ) -> Dict:
     client = XRPObjectClient()
-    offers = client.account_offers(
+    try:
+        offers = client.account_offers(
         wallet_addr=wallet_addr,
         limit=limit
     )
+    except Exception as exception:
+        raise HTTPException(status_code=400, detail=str(exception))
     return offers
 
 @router.post("/cancel_offer/", response_model=Dict)
@@ -266,11 +325,14 @@ def cancel_offer(
     
     ) -> Dict:
     client = XRPObjectClient()
-    cancel = client.cancel_offer(
+    try:
+        cancel = client.cancel_offer(
         sender_addr=cancel_offer.sender_addr,
         offer_seq=cancel_offer.offer_seq,
         fee=cancel_offer.fee
     )
+    except Exception as exception:
+        raise HTTPException(status_code=400, detail=str(exception))
     return cancel
 
 @router.get("/all_offers/", response_model=Dict)
@@ -281,9 +343,12 @@ def all_offers(
     
     ) -> list:
     client = XRPObjectClient()
-    offers = client.all_offers(
+    try:
+        offers = client.all_offers(
         pay=pay,
         receive=receive,
         limit=limit
     )
+    except Exception as exception:
+        raise HTTPException(status_code=400, detail=str(exception))
     return offers
