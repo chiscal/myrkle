@@ -11,6 +11,7 @@ from .xrp.Nft import xNFT
 from .xrp.Objects import xObject
 from .xrp.Wallet import xWallet
 from .xrp.x_constants import XURLS_
+from .xrp.xamm import xObject as XammObject
 
 test_url = XURLS_["TESTNET_URL"]
 test_txns = XURLS_["TESTNET_TXNS"]
@@ -284,10 +285,24 @@ class XRPObjectClient():
     
     def create_offer(
             self, sender_addr: str, pay: float,
-            receive: float, expiry_date: int, fee: str
+            receive: float, expiry_date: int, fee: str,
+            pay_type: str, receive_type: str,  receive_issuer: str = None,
+            pay_issuer: str = None
         ) -> dict:
         try:
-            return self.x_object.create_offer(sender_addr, pay, receive, expiry_date, fee)
+            if pay_type == "xrp" and receive_type != "xrp":
+                receive = IssuedCurrencyAmount(currency=receive_type, issuer=receive_issuer, value=receive)
+                return self.x_object.create_offer(sender_addr, pay, receive, expiry_date, fee)
+            if pay_type != "xrp" and receive_type == "xrp":
+                pay = IssuedCurrencyAmount(currency=pay_type, issuer=pay_issuer, value=pay)
+                return self.x_object.create_offer(sender_addr, pay, receive, expiry_date, fee)
+            elif pay_type != "xrp" and receive_type != "xrp":
+                pay = IssuedCurrencyAmount(currency=pay_type, issuer=pay_issuer, value=pay)
+                receive = IssuedCurrencyAmount(currency=receive_type, issuer=receive_issuer, value=receive)
+                return self.x_object.create_offer(sender_addr, pay, receive, expiry_date, fee)
+            else:
+                raise ValueError("Invalid combination of buy and sell")
+            
         except Exception as exception:
             raise ValueError(f"Error while running create offer, {str(exception)}")
     
@@ -838,3 +853,4 @@ class XRPEngClient():
             return self.xengine.sign_and_submit(txn, wallet, client)
         except Exception as exception:
             raise ValueError(f"Error running, {exception}")
+ 

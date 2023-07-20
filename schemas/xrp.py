@@ -155,6 +155,10 @@ class CreateOffer(BaseModel):
     sender_addr: str
     pay: float
     receive: float
+    pay_type: str
+    receive_type: str
+    receive_issuer: str = None
+    pay_issuer: str = None
     expiry_date: int
     fee: Union[float, int, Decimal] = None
 

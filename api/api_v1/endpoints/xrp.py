@@ -292,16 +292,20 @@ def create_offer(
     client = XRPObjectClient()
     try:
         offer = client.create_offer(
-        sender_addr=offer.sender_addr,
-        pay=offer.pay,
-        receive=offer.receive,
-        expiry_date=offer.expiry_date,
-        fee=offer.fee
-    )
+            sender_addr=offer.sender_addr,
+            pay=offer.pay,
+            receive=offer.receive,
+            expiry_date=offer.expiry_date,
+            fee=offer.fee,
+            pay_type=offer.pay_type,
+            receive_type=offer.receive_type,
+            receive_issuer=offer.receive_issuer,
+            pay_issuer=offer.pay_issuer
+        )
+        return offer
     
     except Exception as exception:
         raise HTTPException(status_code=400, detail=str(exception))
-    return offer
 
 @router.get("/account_offers/", response_model=Dict)
 def account_offers(
