@@ -6,19 +6,12 @@ from xrpl.models import (XRP, AccountObjects, AccountOffers, BookOffers,
                          CheckCancel, CheckCash, CheckCreate, EscrowCancel,
                          EscrowCreate, EscrowFinish, IssuedCurrency,
                          IssuedCurrencyAmount, LedgerEntry, OfferCancel,
-                         OfferCreate, Tx)
+                         OfferCreate, Tx, OfferCreateFlag)
 from xrpl.utils import drops_to_xrp, ripple_time_to_datetime, xrp_to_drops
 
 from .Misc import mm, validate_hex_to_symbol, validate_symbol_to_hex
 from .x_constants import M_SOURCE_TAG
 
-"""
-Manage Checks, Offers, Escrows
-
-Payment Channels
-Tickets
-Ripple Path Finding
-"""
 
 
 class xObject(JsonRpcClient):
@@ -199,17 +192,27 @@ class xObject(JsonRpcClient):
         txn = EscrowFinish(account=sender_addr, owner=escrow_creator, offer_sequence=seq, condition=condition, fulfillment=fulfillment, fee=fee, memos=mm(), source_tag=M_SOURCE_TAG)
         return txn.to_dict()
     
-    def create_offer(self, sender_addr: str, pay: Union[float, IssuedCurrencyAmount], receive: Union[float, IssuedCurrencyAmount], expiry_date: int = None, fee: str = None) -> dict:
+    def create_offer(self, sender_addr: str, pay: Union[float, IssuedCurrencyAmount], receive: Union[float, IssuedCurrencyAmount], expiry_date: int = None,
+        tf_passive: bool = False, tf_immediate_or_cancel: bool = False, tf_fill_or_kill: bool = False, tf_sell: bool = False, fee: str = None) -> dict:
         """create an offer"""
+        flags = []
+        if tf_passive:
+            flags.append(OfferCreateFlag.TF_PASSIVE)
+        if tf_immediate_or_cancel:
+            flags.append(OfferCreateFlag.TF_IMMEDIATE_OR_CANCEL)
+        if tf_fill_or_kill:
+            flags.append(OfferCreateFlag.TF_FILL_OR_KILL)
+        if tf_sell:
+            flags.append(OfferCreateFlag.TF_SELL)
         txn_dict = {}
         if isinstance(receive, float) and isinstance(pay, IssuedCurrencyAmount): # check if give == xrp and get == asset
-            txn = OfferCreate(account=sender_addr, taker_pays=xrp_to_drops(receive), taker_gets=pay, expiration=expiry_date, fee=fee, memos=mm(), source_tag=M_SOURCE_TAG)
+            txn = OfferCreate(account=sender_addr, taker_pays=xrp_to_drops(receive), taker_gets=pay, expiration=expiry_date, fee=fee, memos=mm(), source_tag=M_SOURCE_TAG, flags=flags)
             txn_dict = txn.to_dict()
         if isinstance(receive, IssuedCurrencyAmount) and isinstance(pay, float): # check if give == asset and get == xrp
-            txn = OfferCreate(account=sender_addr, taker_pays=receive, taker_gets=xrp_to_drops(pay), expiration=expiry_date, fee=fee, memos=mm(), source_tag=M_SOURCE_TAG)
+            txn = OfferCreate(account=sender_addr, taker_pays=receive, taker_gets=xrp_to_drops(pay), expiration=expiry_date, fee=fee, memos=mm(), source_tag=M_SOURCE_TAG, flags=flags)
             txn_dict = txn.to_dict()
         if isinstance(receive, IssuedCurrencyAmount) and isinstance(pay, IssuedCurrencyAmount): # check if give and get are == asset
-            txn = OfferCreate(account=sender_addr, taker_pays=receive, taker_gets=pay, expiration=expiry_date, fee=fee, memos=mm(), source_tag=M_SOURCE_TAG)
+            txn = OfferCreate(account=sender_addr, taker_pays=receive, taker_gets=pay, expiration=expiry_date, fee=fee, memos=mm(), source_tag=M_SOURCE_TAG, flags=flags)
             txn_dict = txn.to_dict()
         return txn_dict
     
@@ -293,10 +296,10 @@ class xObject(JsonRpcClient):
                 all_offers_list.append(of)
         return all_offers_list
     
-# from xrpl.wallet import Wallet
-#
-# o = xObject("https://s.altnet.rippletest.net:51234", "", "")
-# print(o.account_offers(Wallet("sEd7K2Qve1VGS1MqKtYfeY2SEggaPGD",0).classic_address))
+from xrpl.wallet import Wallet
+
+o = xObject("https://s.altnet.rippletest.net:51234", "", "")
+print(o.account_offers(Wallet("sEd7K2Qve1VGS1MqKtYfeY2SEggaPGD",0).classic_address))
 # print(o.all_offers(
 #     XRP(),
 #     IssuedCurrency(

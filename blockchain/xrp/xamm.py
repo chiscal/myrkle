@@ -9,7 +9,7 @@ from xrpl.models import (XRP, AccountObjects, AccountOffers, BookOffers,
                          OfferCreate, Tx)
 from xrpl.utils import drops_to_xrp, ripple_time_to_datetime, xrp_to_drops
 
-from .Misc import mm, validate_hex_to_symbol, validate_symbol_to_hex
+from .Misc import mm, validate_hex_to_symbol, validate_symbol_to_hex, amm_fee_to_xrp_format
 from .x_constants import M_SOURCE_TAG
 from typing import Union
 
@@ -20,9 +20,6 @@ from xrpl.models import (XRP, AccountOffers, AMMCreate, AMMVote, BookOffers,
 from xrpl.utils import drops_to_xrp, xrp_to_drops
 from xrpl.wallet import Wallet
 
-from .Misc import (amm_fee_to_xrp_format, mm,
-                  validate_hex_to_symbol)
-from .x_constants import M_SOURCE_TAG
 
 
 class xObject(JsonRpcClient):

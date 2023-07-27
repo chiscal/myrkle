@@ -854,3 +854,108 @@ class XRPEngClient():
         except Exception as exception:
             raise ValueError(f"Error running, {exception}")
  
+
+class XammFinance():
+    def __init__(self, network_url, account_url, txn_url):
+        self.network_url = network_url
+        self.account_url = account_url
+        self.txn_url = txn_url
+        self.xAmm = XammObject(self.network_url, self.account_url, self.txn_url)
+
+    def toTestnet(self):
+        try:
+            self.xAmm.toTestnet()
+        except Exception as exception:
+            raise ValueError(f"Error running, {exception}")
+
+    def toMainnet(self):
+        try:
+            self.xAmm.toMainnet()
+        except Exception as exception:
+            raise ValueError(f"Error running, {exception}")
+    
+    def cancel_offer(self, sender_addr: str, offer_seq: int, fee: str = None) -> dict:
+        """cancel an offer"""
+        try:
+            return self.xAmm.cancel_offer(sender_addr, offer_seq, fee)
+        except Exception as exception:
+            raise ValueError(f"Error running cancel offer, {exception}")
+
+    def create_order_book_liquidity(self, sender_addr: str, buy, sell, expiry_date: int = None, fee: str = None, buy_type="xrp", sell_type="xrp", buy_issuer = None, sell_issuer = None) -> dict:
+        """create an offer as passive; it doesn't immediately consume offers that match it, just stays on the ledger as an object for liquidity"""
+        try:
+            if buy_type == "xrp" and sell_type == "xrp":
+                return self.xAmm.create_order_book_liquidity(sender_addr, buy, sell, expiry_date, fee)
+            elif buy_type == "xrp" and sell_type != "xrp":
+                return self.xAmm.create_order_book_liquidity(
+                    sender_addr, buy, IssuedCurrencyAmount(sell_type, sell_issuer, sell), expiry_date,
+                    fee
+                )
+            elif buy_type != "xrp" and sell_type == "xrp":
+                return self.xAmm.create_order_book_liquidity(
+                    sender_addr, IssuedCurrencyAmount(buy_type, buy_issuer, buy),
+                    sell, expiry_date, fee
+                )
+            elif buy_type != "xrp" and sell_type != "xrp":
+                return self.xAmm.create_order_book_liquidity(
+                    sender_addr, IssuedCurrencyAmount(buy_type, buy_issuer, buy),
+                    IssuedCurrencyAmount(sell_type, sell_issuer, sell), expiry_date,
+                    fee
+                )
+        except Exception as exception:
+            raise ValueError(f"Error running create order book liquidity, {exception}")
+
+    def get_account_order_book_liquidity(self, wallet_addr: str, limit: int = None) -> list:
+        """return all offers that are liquidity an account created"""
+        try:
+            return self.xAmm.get_account_order_book_liquidity(wallet_addr, limit)
+        except Exception as exception:
+            raise ValueError(f"Error running get account order book liquidity, {exception}")
+
+
+    def order_book_swap(self, sender_addr: str, buy: Union[float, IssuedCurrencyAmount], sell: Union[float, IssuedCurrencyAmount], swap_all: bool = False, fee: str = None, buy_issuer = None, sell_issuer = None, buy_type = None, sell_type = None) -> dict:
+        try:
+            if buy_type == "xrp" and sell_type == "xrp":
+                return self.xAmm.order_book_swap(sender_addr, buy, sell, swap_all, fee)
+            elif buy_type == "xrp" and sell_type != "xrp":
+                return self.xAmm.order_book_swap(
+                    sender_addr, buy, IssuedCurrencyAmount(sell_type, sell_issuer, sell), swap_all,
+                    fee
+                )
+            elif buy_type != "xrp" and sell_type == "xrp":
+                return self.xAmm.order_book_swap(
+                    sender_addr, IssuedCurrencyAmount(buy_type, buy_issuer, buy),
+                    sell, swap_all, fee
+                )
+            elif buy_type != "xrp" and sell_type != "xrp":
+                return self.xAmm.order_book_swap(
+                    sender_addr, IssuedCurrencyAmount(buy_type, buy_issuer, buy),
+                    IssuedCurrencyAmount(sell_type, sell_issuer, sell), swap_all,
+                    fee
+                )
+        except Exception as exception:
+            raise ValueError(f"Error running create order book liquidity, {exception}")
+
+    def sort_best_offer(self, buy: Union[XRP, IssuedCurrency], sell: Union[XRP, IssuedCurrency], best_buy: bool = False, best_sell: bool = False, limit: int = None, buy_issuer = None, sell_issuer = None) -> dict:
+        """return all available orders and best {option} first, choose either best_buy or best_sell"""
+        try:
+            if buy == "xrp" and sell == "xrp":
+                return self.xAmm.sort_best_offer(buy, sell, best_buy, best_sell, limit)
+            elif buy == "xrp" and sell != "xrp":
+                return self.xAmm.sort_best_offer(
+                    buy, IssuedCurrency(sell, sell_issuer), best_buy,
+                    limit
+                )
+            elif buy != "xrp" and sell == "xrp":
+                return self.xAmm.order_book_swap(
+                    IssuedCurrency(buy, buy_issuer),
+                    sell, best_buy, limit
+                )
+            elif buy != "xrp" and sell != "xrp":
+                return self.xAmm.order_book_swap(
+                    IssuedCurrency(buy, buy_issuer),
+                    IssuedCurrency(sell, sell_issuer), best_buy,
+                    limit
+                )
+        except Exception as exception:
+            raise ValueError(f"Error running sort best offer, {exception}")
