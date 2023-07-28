@@ -1,15 +1,22 @@
-from typing import Any, Dict
+from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 
-from api import deps
+# from api import deps
 
 
 from schemas import xamm
 
 from blockchain.xrp_client import XammFinance
 
+from blockchain.xrp.x_constants import XURLS_
+
+test_url = XURLS_["TESTNET_URL"]
+test_txns = XURLS_["TESTNET_TXNS"]
+test_account =  XURLS_["TESTNET_ACCOUNT"]
+
 router = APIRouter()
+
 
 @router.post("/cancel-offer/", response_model=Any)
 def cancel_offer(
@@ -17,7 +24,7 @@ def cancel_offer(
     transaction: xamm.CancelOffer
     ):
 
-    client = XammFinance()
+    client = XammFinance(test_url, test_account, test_txns)
     try:
         return client.cancel_offer(
             transaction.sender_addr,
@@ -33,7 +40,7 @@ def create_order_book_liquidity(
     transaction: xamm.CreateOrderBookLiquidity
     ):
 
-    client = XammFinance()
+    client = XammFinance(test_url, test_account, test_txns)
     try:
         return client.create_order_book_liquidity(
             transaction.sender_addr,
@@ -55,7 +62,7 @@ def get_account_order_book_liquidity(
     transaction: xamm.GetAccountOrderBookLiquidity
     ):
 
-    client = XammFinance()
+    client = XammFinance(test_url, test_account, test_txns)
     try:
         return client.get_account_order_book_liquidity(
             transaction.wallet_addr,
@@ -69,7 +76,7 @@ def order_book_swap(
     *,
     transaction: xamm.OrderBookSwap
     ):
-    client = XammFinance()
+    client = XammFinance(test_url, test_account, test_txns)
     try:
         return client.order_book_swap(
             transaction.sender_addr,

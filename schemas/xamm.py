@@ -1,4 +1,4 @@
-from typing import Optional
+# from typing import Optional, Str
 
 from pydantic import BaseModel
 
@@ -12,8 +12,8 @@ class CancelOffer(BaseModel):
 
 class CreateOrderBookLiquidity(BaseModel):
     sender_addr: str
-    buy: str
-    sell: str
+    buy: float
+    sell: float
     expiry_date: int = None
     fee: str = None
     buy_type: str = None
@@ -29,8 +29,8 @@ class GetAccountOrderBookLiquidity(BaseModel):
 
 class OrderBookSwap(BaseModel):
     sender_addr: str
-    buy: str
-    sell: str
+    buy: float
+    sell: float
     swap_all: bool = False
     fee: str = None
     buy_type: str = None
