@@ -7,6 +7,15 @@ from xrpl.utils import drops_to_xrp, ripple_time_to_datetime
 from .Misc import (hex_to_symbol, token_market_info, validate_hex_to_symbol,
                   xrp_format_to_nft_fee, xrp_format_to_transfer_fee)
 
+def status(txid: str, mainnet: bool = True) -> dict:
+    response = ""
+    query = Tx(transaction=txid)
+    client = JsonRpcClient("https://xrplcluster.com") if mainnet else JsonRpcClient("https://s.altnet.rippletest.net:51234")
+    result = client.request(query).result
+    if "Account" in result:
+        response = result["meta"]["TransactionResult"]
+    return response
+
 
 class xInfo(JsonRpcClient):
     def __init__(self, network_url: str, account_url: str, txn_url: str):

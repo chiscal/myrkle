@@ -31,7 +31,8 @@ class OrderBookSwap(BaseModel):
     sender_addr: str
     buy: float
     sell: float
-    swap_all: bool = False
+    tf_sell: bool = False
+    tf_fill_or_kill: bool = False
     fee: str = None
     buy_type: str = None
     sell_type: str = None

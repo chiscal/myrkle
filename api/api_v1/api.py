@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from api.api_v1.endpoints import login, notifications, users, xrp, xamm
+from api.api_v1.endpoints import login, notifications, users, xrp, xamm, wallets
 
 api_router = APIRouter()
 

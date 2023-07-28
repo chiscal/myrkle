@@ -54,9 +54,13 @@ async def get_wallet_balance(websocket: WebSocket, wallet_address: str):
             if msg.lower() == "close":
                 await websocket.close()
                 break
-            else:
-                print(f'CLIENT says - {msg}')
-                await websocket.send_text(f"Your message was: {msg}")
+            # msg = await websocket.receive_text()
+            # if msg.lower() == "close":
+            #     await websocket.close()
+            #     break
+            # else:
+            #     print(f'CLIENT says - {msg}')
+            #     await websocket.send_text(f"Your message was: {msg}")
             
             await websocket.send_json(client.get_balance(wallet_address))
     except WebSocketDisconnect:

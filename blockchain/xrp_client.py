@@ -2,11 +2,13 @@ from decimal import Decimal
 from typing import Union
 
 from xrpl.models import AuthAccount, IssuedCurrency, IssuedCurrencyAmount, XRP
+from xrpl.utils import xrp_to_drops
+
 
 from .xrp.Assets import xAsset
 from .xrp.Eng import xEng
 from .xrp.Exchange import xAmm, xOrderBookExchange
-from .xrp.Info import xInfo
+from .xrp.Info import xInfo, status
 from .xrp.Nft import xNFT
 from .xrp.Objects import xObject
 from .xrp.Wallet import xWallet
@@ -17,6 +19,9 @@ test_url = XURLS_["TESTNET_URL"]
 test_txns = XURLS_["TESTNET_TXNS"]
 test_account =  XURLS_["TESTNET_ACCOUNT"]
 
+
+def transaction_status(txid, mainnet=False):
+    return status(txid, mainnet)
 
 class XRPWalletClient():
     wallet = xWallet(test_url, test_account, test_txns)
@@ -913,24 +918,24 @@ class XammFinance():
             raise ValueError(f"Error running get account order book liquidity, {exception}")
 
 
-    def order_book_swap(self, sender_addr: str, buy: Union[float, IssuedCurrencyAmount], sell: Union[float, IssuedCurrencyAmount], swap_all: bool = False, fee: str = None, buy_issuer = None, sell_issuer = None, buy_type = None, sell_type = None) -> dict:
+    def order_book_swap(self, sender_addr: str, buy: Union[float, IssuedCurrencyAmount], sell: Union[float, IssuedCurrencyAmount],  tf_sell: bool = False, tf_fill_or_kill: bool = False, fee: str = None, buy_issuer = None, sell_issuer = None, buy_type = None, sell_type = None) -> dict:
         try:
             if buy_type == "xrp" and sell_type == "xrp":
-                return self.xAmm.order_book_swap(sender_addr, buy, sell, swap_all, fee)
+                return self.xAmm.order_book_swap(sender_addr, buy, sell, tf_sell, tf_fill_or_kill, fee)
             elif buy_type == "xrp" and sell_type != "xrp":
                 return self.xAmm.order_book_swap(
-                    sender_addr, buy, IssuedCurrencyAmount(sell_type, sell_issuer, sell), swap_all,
+                    sender_addr, buy, IssuedCurrencyAmount(sell_type, sell_issuer, sell), tf_sell, tf_fill_or_kill,
                     fee
                 )
             elif buy_type != "xrp" and sell_type == "xrp":
                 return self.xAmm.order_book_swap(
                     sender_addr, IssuedCurrencyAmount(buy_type, buy_issuer, buy),
-                    sell, swap_all, fee
+                    sell, tf_sell, tf_fill_or_kill, fee
                 )
             elif buy_type != "xrp" and sell_type != "xrp":
                 return self.xAmm.order_book_swap(
                     sender_addr, IssuedCurrencyAmount(buy_type, buy_issuer, buy),
-                    IssuedCurrencyAmount(sell_type, sell_issuer, sell), swap_all,
+                    IssuedCurrencyAmount(sell_type, sell_issuer, sell), tf_sell, tf_fill_or_kill,
                     fee
                 )
         except Exception as exception:

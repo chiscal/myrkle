@@ -296,10 +296,10 @@ class xObject(JsonRpcClient):
                 all_offers_list.append(of)
         return all_offers_list
     
-from xrpl.wallet import Wallet
+# from xrpl.wallet import Wallet
 
-o = xObject("https://s.altnet.rippletest.net:51234", "", "")
-print(o.account_offers(Wallet("sEd7K2Qve1VGS1MqKtYfeY2SEggaPGD",0).classic_address))
+# o = xObject("https://s.altnet.rippletest.net:51234", "", "")
+# print(o.account_offers(Wallet("sEd7K2Qve1VGS1MqKtYfeY2SEggaPGD",0).classic_address))
 # print(o.all_offers(
 #     XRP(),
 #     IssuedCurrency(
