@@ -1,6 +1,9 @@
-from typing import Any
+from typing import Any, Dict, Union
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.orm import Session
+import crud
+from api import deps
 
 # from api import deps
 
@@ -71,18 +74,45 @@ def get_account_order_book_liquidity(
     except Exception as exception:
         raise HTTPException(status_code=400, detail=str(exception))
 
+@router.get("/order-book-swap/{wallet_address}", response_model=Union[xamm.XAMMWallet, Dict])
+def get_pre_order_book(wallet_address: str, db: Session = Depends(deps.get_db)):
+    wallet_info = crud.xamm_wallet.get_by_address(db, wallet_addr=wallet_address)
+    if wallet_info:
+        return wallet_info
+    return {
+        "wallet_addr": wallet_address,
+        "tf_sell": False,
+        "tf_fill_or_kill": False,
+        "tf_immediate_or_cancel": False,
+    }
+
 @router.post("/order-book-swap/", response_model=Any)
 def order_book_swap(
     *,
+    db: Session = Depends(deps.get_db),
     transaction: xamm.OrderBookSwap
     ):
     client = XammFinance(test_url, test_account, test_txns)
     try:
+        wallet_info = crud.xamm_wallet.get_by_address(db, wallet_addr=transaction.sender_addr)
+        if wallet_info:
+            crud.xamm_wallet.update(db)
+        else:
+            wallet = xamm.XAMMWallet
+            wallet.wallet_addr = transaction.sender_addr
+            wallet.tf_fill_or_kill = transaction.tf_fill_or_kill
+            wallet.tf_sell = transaction.tf_sell
+            wallet.tf_immediate_or_cancel = transaction.tf_immediate_or_cancel
+            
+            crud.xamm_wallet.create(db, wallet)
+        
         return client.order_book_swap(
             transaction.sender_addr,
             transaction.buy,
             transaction.sell,
-            transaction.swap_all,
+            transaction.tf_sell,
+            transaction.tf_fill_or_kill,
+            transaction.tf_immediate_or_cancel,
             transaction.fee,
             transaction.buy_issuer,
             transaction.sell_issuer,

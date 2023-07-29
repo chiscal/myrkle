@@ -9,7 +9,6 @@ class CancelOffer(BaseModel):
     fee: str
 
 
-
 class CreateOrderBookLiquidity(BaseModel):
     sender_addr: str
     buy: float
@@ -33,6 +32,7 @@ class OrderBookSwap(BaseModel):
     sell: float
     tf_sell: bool = False
     tf_fill_or_kill: bool = False
+    tf_immediate_or_cancel: bool = False
     fee: str = None
     buy_type: str = None
     sell_type: str = None
@@ -48,3 +48,10 @@ class SortBestOffer(BaseModel):
     limit: int = None
     buy_issuer: str = None
     sell_issuer: str = None
+
+
+class XAMMWallet(BaseModel):
+    wallet_addr: str
+    tf_sell: bool = False
+    tf_fill_or_kill: bool = False
+    tf_immediate_or_cancel: bool = False

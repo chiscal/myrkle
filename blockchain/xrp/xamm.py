@@ -97,7 +97,7 @@ class xObject(JsonRpcClient):
                     offer_list.append(of)
         return offer_list
 
-    def order_book_swap(self, sender_addr: str, buy: Union[float, IssuedCurrencyAmount], sell: Union[float, IssuedCurrencyAmount], tf_sell: bool = False, tf_fill_or_kill: bool = False, fee: str = None) -> dict:
+    def order_book_swap(self, sender_addr: str, buy: Union[float, IssuedCurrencyAmount], sell: Union[float, IssuedCurrencyAmount], tf_sell: bool = False, tf_fill_or_kill: bool = False, tf_immediate_or_cancel: bool = False, fee: str = None) -> dict:
         """create an offer that either matches with existing offers to get entire sell amount or cancels\n
         if swap_all is enabled, this will force exchange all the paying units regardless of profit or loss\n
 
@@ -108,6 +108,8 @@ class xObject(JsonRpcClient):
             flags.append(OfferCreateFlag.TF_SELL)
         if tf_fill_or_kill:
             flags.append(OfferCreateFlag.TF_FILL_OR_KILL)
+        if tf_immediate_or_cancel:
+            flags.append(OfferCreateFlag.TF_IMMEDIATE_OR_CANCEL)
         tx_dict = {}
         if isinstance(buy, float) and isinstance(sell, IssuedCurrencyAmount): # check if give == xrp and get == asset
             txn = OfferCreate(account=sender_addr, taker_pays=xrp_to_drops(buy), taker_gets=sell, flags=flags, fee=fee, memos=mm(), source_tag=M_SOURCE_TAG)

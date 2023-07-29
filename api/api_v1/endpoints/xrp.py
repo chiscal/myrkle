@@ -76,17 +76,6 @@ def get_token_transactions(
         raise HTTPException(status_code=400, detail=str(exception))
     return token_transactions  
 
-@router.get("/get-token-transactions/{wallet_address}", response_model=Dict)
-def get_token_transactions(
-    wallet_address: str,
-    
-    ) -> Dict:
-    client = XRPWalletClient()
-    try:
-        token_transactions = client.get_token_transactions(wallet_address)
-    except Exception as exception:
-        raise HTTPException(status_code=400, detail=str(exception))
-    return token_transactions 
 
 @router.post("/send-xrp/", response_model=transaction_schema.Transaction)
 def send_xrp(
