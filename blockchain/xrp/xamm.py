@@ -2,23 +2,20 @@ from decimal import Decimal
 from typing import Union
 
 from xrpl.clients import JsonRpcClient
-from xrpl.models import (XRP, AccountObjects, AccountOffers, BookOffers,
-                         CheckCancel, CheckCash, CheckCreate, EscrowCancel,
-                         EscrowCreate, EscrowFinish, IssuedCurrency,
-                         IssuedCurrencyAmount, LedgerEntry, OfferCancel,
-                         OfferCreate, Tx)
+from xrpl.models import (XRP, AccountOffers, BookOffers,
+                         IssuedCurrency,
+                         IssuedCurrencyAmount, OfferCancel,
+                         OfferCreate, AccountLines, OfferCreate, OfferCreateFlag, Tx)
+
 from xrpl.utils import drops_to_xrp, ripple_time_to_datetime, xrp_to_drops
 
-from .Misc import mm, validate_hex_to_symbol, validate_symbol_to_hex, amm_fee_to_xrp_format
+from .Misc import mm, validate_hex_to_symbol, validate_symbol_to_hex, amm_fee_to_xrp_format, is_hex
 from .x_constants import M_SOURCE_TAG
 from typing import Union
 
 from xrpl.clients import JsonRpcClient
-from xrpl.models import (XRP, AccountOffers, AMMCreate, AMMVote, BookOffers,
-                         IssuedCurrency, IssuedCurrencyAmount, OfferCreate,
-                         OfferCreateFlag, AuthAccount, AMMBid)
+
 from xrpl.utils import drops_to_xrp, xrp_to_drops
-from xrpl.wallet import Wallet
 
 
 
@@ -204,3 +201,33 @@ class xObject(JsonRpcClient):
                     index += 1
                     best[index] = of
         return best
+    
+    def token_balance(self, wallet_addr: str, name: str, issuer: str) -> list:
+        info = {}
+        acc_info = AccountLines(account=wallet_addr, ledger_index="")
+        response = self.client.request(acc_info)
+        result = response.result
+        if "lines" in result:
+            lines = result["lines"]
+            for line in lines:
+                if isinstance(is_hex(line["currency"]), Exception):
+                    pass
+                elif validate_hex_to_symbol(line["currency"]) == validate_hex_to_symbol(name) and line["account"] == issuer:
+                    info["token"] = validate_hex_to_symbol(line["currency"])
+                    info["issuer"] = line["account"]
+                    info["amount"] = line["balance"]
+                    info["limit"] = line["limit"]
+                    info["no_ripple"] = line["no_ripple"] if "no_ripple" in line else ""
+                    info["freeze_status"] = line["freeze"] if "freeze" in line else ""
+        return info
+
+    def status(self, txid: str, mainnet: bool = True) -> dict:
+        response = ""
+        query = Tx(transaction=txid)
+        client = JsonRpcClient("https://xrplcluster.com") if mainnet else JsonRpcClient("https://s.altnet.rippletest.net:51234")
+        result = client.request(query).result
+        if "Account" in result:
+            response = result["meta"]["TransactionResult"]
+        return response
+
+

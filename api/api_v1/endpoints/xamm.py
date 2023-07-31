@@ -1,5 +1,4 @@
-from typing import Any, Dict, Union
-
+from typing import Any, Dict, Union, List
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 import crud
@@ -17,6 +16,9 @@ from blockchain.xrp.x_constants import XURLS_
 test_url = XURLS_["TESTNET_URL"]
 test_txns = XURLS_["TESTNET_TXNS"]
 test_account =  XURLS_["TESTNET_ACCOUNT"]
+main_url = XURLS_["MAINNET_URL"]
+main_txns = XURLS_["MAINNET_TXNS"]
+main_account = XURLS_["MAINNET_ACCOUNT"]
 
 router = APIRouter()
 
@@ -26,8 +28,10 @@ def cancel_offer(
     *,
     transaction: xamm.CancelOffer
     ):
-
-    client = XammFinance(test_url, test_account, test_txns)
+    if transaction.network == "testnet":
+        client = XammFinance(test_url, test_account, test_txns)
+    else:
+        client = XammFinance(main_url, main_account, main_txns)
     try:
         return client.cancel_offer(
             transaction.sender_addr,
@@ -43,7 +47,10 @@ def create_order_book_liquidity(
     transaction: xamm.CreateOrderBookLiquidity
     ):
 
-    client = XammFinance(test_url, test_account, test_txns)
+    if transaction.network == "testnet":
+        client = XammFinance(test_url, test_account, test_txns)
+    else:
+        client = XammFinance(main_url, main_account, main_txns)
     try:
         return client.create_order_book_liquidity(
             transaction.sender_addr,
@@ -65,7 +72,10 @@ def get_account_order_book_liquidity(
     transaction: xamm.GetAccountOrderBookLiquidity
     ):
 
-    client = XammFinance(test_url, test_account, test_txns)
+    if transaction.network == "testnet":
+        client = XammFinance(test_url, test_account, test_txns)
+    else:
+        client = XammFinance(main_url, main_account, main_txns)
     try:
         return client.get_account_order_book_liquidity(
             transaction.wallet_addr,
@@ -92,7 +102,10 @@ def order_book_swap(
     db: Session = Depends(deps.get_db),
     transaction: xamm.OrderBookSwap
     ):
-    client = XammFinance(test_url, test_account, test_txns)
+    if transaction.network == "testnet":
+        client = XammFinance(test_url, test_account, test_txns)
+    else:
+        client = XammFinance(main_url, main_account, main_txns)
     try:
         wallet_info = crud.xamm_wallet.get_by_address(db, wallet_addr=transaction.sender_addr)
         if wallet_info:
@@ -126,7 +139,10 @@ def order_book_swap(
 def sort_best_offer(*,
     transaction: xamm.SortBestOffer
     ):
-    client = XammFinance()
+    if transaction.network == "testnet":
+        client = XammFinance(test_url, test_account, test_txns)
+    else:
+        client = XammFinance(main_url, main_account, main_txns)
     try:
         return client.sort_best_offer(
             transaction.buy,
@@ -139,3 +155,14 @@ def sort_best_offer(*,
         )
     except Exception as exception:
         raise HTTPException(status_code=400, detail=str(exception))
+
+
+@router.get('/token-balance/{wallet_address}/{name}/{issuer_address}', response_model=List)
+def token_balance(wallet_address: str,name: str, issuer_address: str):
+    client = XammFinance(main_url, main_account, main_txns)
+    return client.token_balance(wallet_address, name, issuer_address)
+    
+@router.get('/status/{txid}/{mainnet}/', response_model=List)
+def status(txid: str, mainnet: bool):
+    client = XammFinance(main_url, main_account, main_txns)
+    return client.status(txid, mainnet)

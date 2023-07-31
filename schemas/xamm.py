@@ -7,6 +7,7 @@ class CancelOffer(BaseModel):
     sender_addr: str
     offer_seq: int
     fee: str
+    network: str = "testnet"
 
 
 class CreateOrderBookLiquidity(BaseModel):
@@ -19,11 +20,13 @@ class CreateOrderBookLiquidity(BaseModel):
     sell_type: str = None
     buy_issuer: str = None
     sell_issuer: str = None
+    network: str = "testnet"
 
 
 class GetAccountOrderBookLiquidity(BaseModel):
     wallet_addr: str
     limit: int = None
+    network: str = "testnet"
 
 
 class OrderBookSwap(BaseModel):
@@ -38,6 +41,7 @@ class OrderBookSwap(BaseModel):
     sell_type: str = None
     buy_issuer: str = None
     sell_issuer: str = None
+    network: str = "testnet"
 
 
 class SortBestOffer(BaseModel):
@@ -48,6 +52,7 @@ class SortBestOffer(BaseModel):
     limit: int = None
     buy_issuer: str = None
     sell_issuer: str = None
+    network: str = "testnet"
 
 
 class XAMMWallet(BaseModel):
@@ -55,3 +60,4 @@ class XAMMWallet(BaseModel):
     tf_sell: bool = False
     tf_fill_or_kill: bool = False
     tf_immediate_or_cancel: bool = False
+    network: str = "testnet"

@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Union
+from typing import Dict, List, Union
 
 from xrpl.models import AuthAccount, IssuedCurrency, IssuedCurrencyAmount, XRP
 from xrpl.utils import xrp_to_drops
@@ -941,20 +941,27 @@ class XammFinance():
         except Exception as exception:
             raise ValueError(f"Error running create order book liquidity, {exception}")
 
-    def sort_best_offer(self, buy: Union[XRP, IssuedCurrency], sell: Union[XRP, IssuedCurrency], best_buy: bool = False, best_sell: bool = False, limit: int = None, buy_issuer = None, sell_issuer = None) -> dict:
-        """return all available orders and best {option} first, choose either best_buy or best_sell"""
+    def sort_best_offer(
+            self, buy: str,
+            sell: str, best_buy: bool = False,
+            best_sell: bool = False, limit: int = None,
+            buy_issuer = None, sell_issuer = None) -> Dict:
+        """
+        return all available orders and best {option} first,
+        choose either best_buy or best_sell
+        """
         try:
             if buy == "xrp" and sell == "xrp":
-                return self.xAmm.sort_best_offer(buy, sell, best_buy, best_sell, limit)
+                return self.xAmm.sort_best_offer(XRP, XRP, best_buy, best_sell, limit)
             elif buy == "xrp" and sell != "xrp":
                 return self.xAmm.sort_best_offer(
-                    buy, IssuedCurrency(sell, sell_issuer), best_buy,
+                    XRP, IssuedCurrency(sell, sell_issuer), best_buy,
                     limit
                 )
             elif buy != "xrp" and sell == "xrp":
-                return self.xAmm.order_book_swap(
+                return self.xAmm.sort_best_offer(
                     IssuedCurrency(buy, buy_issuer),
-                    sell, best_buy, limit
+                    XRP, best_buy, limit
                 )
             elif buy != "xrp" and sell != "xrp":
                 return self.xAmm.order_book_swap(
@@ -964,3 +971,9 @@ class XammFinance():
                 )
         except Exception as exception:
             raise ValueError(f"Error running sort best offer, {exception}")
+    
+    def token_balance(self, wallet_addr: str, name: str, issuer_addr: str) -> List:
+        return self.xAmm.token_balance(wallet_addr, name, issuer_addr)
+
+    def status(self, txid: str, mainnet: bool = True) -> dict:
+        return self.xAmm.status(txid, mainnet)
