@@ -171,16 +171,15 @@ def token_balance(wallet_address: str,name: str, issuer_address: str):
     client = XammFinance(main_url, main_account, main_txns)
     return client.token_balance(wallet_address, name, issuer_address)
     
-@router.get('/status/{txid}/{mainnet}/', response_model=List)
-def status(txid: str, mainnet: bool):
+@router.get('/status/{txid}/{network}/', response_model=List)
+def status(txid: str, network: str):
+    mainnet = True
     client = XammFinance(main_url, main_account, main_txns)
+    if network != "mainnet":
+        mainnet = False
     return client.status(txid, mainnet)
 
-@router.get('/token-exists/{token}/{issuer}/{network}', response_model=Dict)
-def token_exists(token: str, issuer: str, network: str = "mainnet"):
-    if network == "mainnet":
-        client = XammFinance(main_url, main_account, main_txns)
-    else:
-        client = XammFinance(test_url, test_account, test_txns)
-
+@router.get('/token-exists/{token}/{issuer}/', response_model=Dict)
+def token_exists(token: str, issuer: str):
+    client = XammFinance(main_url, main_account, main_txns)
     return client.token_exists(token, issuer)
