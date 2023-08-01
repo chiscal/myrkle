@@ -1,5 +1,6 @@
 from decimal import Decimal
 from typing import Dict, List, Union
+from requests.models import requote_uri
 
 from xrpl.models import AuthAccount, IssuedCurrency, IssuedCurrencyAmount, XRP
 from xrpl.utils import xrp_to_drops
@@ -918,25 +919,31 @@ class XammFinance():
             raise ValueError(f"Error running get account order book liquidity, {exception}")
 
 
-    def order_book_swap(self, sender_addr: str, buy: Union[float, IssuedCurrencyAmount], sell: Union[float, IssuedCurrencyAmount],  tf_sell: bool = False, tf_fill_or_kill: bool = False, fee: str = None, buy_issuer = None, sell_issuer = None, buy_type = None, sell_type = None) -> dict:
+    def order_book_swap(
+            self, sender_addr: str, buy: Union[float, IssuedCurrencyAmount],
+            sell: Union[float, IssuedCurrencyAmount],
+            tf_sell: bool = False, tf_fill_or_kill: bool = False,
+            tf_immediate_or_cancel: bool = False, fee: str = None, buy_issuer = None,
+            sell_issuer = None, buy_type = None, sell_type = None
+        ) -> dict:
         try:
             if buy_type == "xrp" and sell_type == "xrp":
                 return self.xAmm.order_book_swap(sender_addr, buy, sell, tf_sell, tf_fill_or_kill, fee)
             elif buy_type == "xrp" and sell_type != "xrp":
                 return self.xAmm.order_book_swap(
                     sender_addr, buy, IssuedCurrencyAmount(sell_type, sell_issuer, sell), tf_sell, tf_fill_or_kill,
-                    fee
+                    tf_immediate_or_cancel, fee
                 )
             elif buy_type != "xrp" and sell_type == "xrp":
                 return self.xAmm.order_book_swap(
                     sender_addr, IssuedCurrencyAmount(buy_type, buy_issuer, buy),
-                    sell, tf_sell, tf_fill_or_kill, fee
+                    sell, tf_sell, tf_fill_or_kill, tf_immediate_or_cancel, fee
                 )
             elif buy_type != "xrp" and sell_type != "xrp":
                 return self.xAmm.order_book_swap(
                     sender_addr, IssuedCurrencyAmount(buy_type, buy_issuer, buy),
                     IssuedCurrencyAmount(sell_type, sell_issuer, sell), tf_sell, tf_fill_or_kill,
-                    fee
+                    tf_immediate_or_cancel, fee
                 )
         except Exception as exception:
             raise ValueError(f"Error running create order book liquidity, {exception}")
@@ -977,3 +984,6 @@ class XammFinance():
 
     def status(self, txid: str, mainnet: bool = True) -> dict:
         return self.xAmm.status(txid, mainnet)
+    
+    def token_exists(self, token: str, issuer: str) -> dict:
+        return self.xAmm.token_exists(token, issuer)

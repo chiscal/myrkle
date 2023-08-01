@@ -107,17 +107,26 @@ def order_book_swap(
     else:
         client = XammFinance(main_url, main_account, main_txns)
     try:
-        wallet_info = crud.xamm_wallet.get_by_address(db, wallet_addr=transaction.sender_addr)
+        wallet = xamm.XAMMWallet
+        wallet.wallet_addr = transaction.sender_addr
+        wallet.tf_fill_or_kill = transaction.tf_fill_or_kill
+        wallet.tf_sell = transaction.tf_sell
+        wallet.tf_immediate_or_cancel = transaction.tf_immediate_or_cancel
+        
+        wallet_info = crud.xamm_wallet.get_by_address(
+            db, wallet_addr=transaction.sender_addr
+        )
         if wallet_info:
-            crud.xamm_wallet.update(db)
-        else:
-            wallet = xamm.XAMMWallet
-            wallet.wallet_addr = transaction.sender_addr
-            wallet.tf_fill_or_kill = transaction.tf_fill_or_kill
-            wallet.tf_sell = transaction.tf_sell
-            wallet.tf_immediate_or_cancel = transaction.tf_immediate_or_cancel
-            
-            crud.xamm_wallet.create(db, wallet)
+            crud.xamm_wallet.update(
+                db,
+                db_obj=wallet_info,
+                obj_in=wallet
+            )
+        else: 
+            crud.xamm_wallet.create(
+                db,
+                obj_in=wallet
+            )
         
         return client.order_book_swap(
             transaction.sender_addr,
@@ -166,3 +175,12 @@ def token_balance(wallet_address: str,name: str, issuer_address: str):
 def status(txid: str, mainnet: bool):
     client = XammFinance(main_url, main_account, main_txns)
     return client.status(txid, mainnet)
+
+@router.get('/token-exists/{token}/{issuer}/{network}', response_model=Dict)
+def token_exists(token: str, issuer: str, network: str = "mainnet"):
+    if network == "mainnet":
+        client = XammFinance(main_url, main_account, main_txns)
+    else:
+        client = XammFinance(test_url, test_account, test_txns)
+
+    return client.token_exists(token, issuer)

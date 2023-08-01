@@ -2,20 +2,22 @@ from decimal import Decimal
 from typing import Union
 
 from xrpl.clients import JsonRpcClient
-from xrpl.models import (XRP, AccountOffers, BookOffers,
-                         IssuedCurrency,
-                         IssuedCurrencyAmount, OfferCancel,
-                         OfferCreate, AccountLines, OfferCreate, OfferCreateFlag, Tx)
-
-from xrpl.utils import drops_to_xrp, ripple_time_to_datetime, xrp_to_drops
-
-from .Misc import mm, validate_hex_to_symbol, validate_symbol_to_hex, amm_fee_to_xrp_format, is_hex
-from .x_constants import M_SOURCE_TAG
-from typing import Union
-
-from xrpl.clients import JsonRpcClient
+from xrpl.models import (
+    XRP, AccountOffers, BookOffers,
+    IssuedCurrency, IssuedCurrencyAmount, OfferCancel,
+    OfferCreate, AccountLines, GatewayBalances, OfferCreateFlag, Tx
+)
 
 from xrpl.utils import drops_to_xrp, xrp_to_drops
+
+from .Misc import (
+    mm, validate_hex_to_symbol,
+    is_hex
+)
+
+from .x_constants import M_SOURCE_TAG
+
+
 
 
 
@@ -230,4 +232,20 @@ class xObject(JsonRpcClient):
             response = result["meta"]["TransactionResult"]
         return response
 
-
+    def token_exists(self, token: str, issuer: str) -> dict:
+            response = {"token": token, "issuer": issuer, "exists": False}
+            # client = JsonRpcClient("https://xrplcluster.com") if mainnet else JsonRpcClient("https://s.altnet.rippletest.net:51234")
+            result = self.client.request(
+                GatewayBalances(
+                    account=issuer,
+                    ledger_index="validated"
+                )
+            ).result
+            if "obligations" in result:
+                obligations = result["obligations"]
+                for key, _ in obligations.items():
+                    if validate_hex_to_symbol(key) == validate_hex_to_symbol(token):
+                        response["token"] = validate_hex_to_symbol(key)
+                        response["issuer"] = issuer
+                        response["exists"] = True
+            return response
