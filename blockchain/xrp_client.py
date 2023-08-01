@@ -1,10 +1,7 @@
 from decimal import Decimal
 from typing import Dict, List, Union
-from requests.models import requote_uri
 
 from xrpl.models import AuthAccount, IssuedCurrency, IssuedCurrencyAmount, XRP
-from xrpl.utils import xrp_to_drops
-
 
 from .xrp.Assets import xAsset
 from .xrp.Eng import xEng
@@ -48,19 +45,19 @@ class XRPWalletClient():
         except Exception as exception:
             raise ValueError(f"Error while running get transactions, {str(exception)}")
     
-    def get_token_transactions(self, address: str, limit: int=None):
+    def get_token_transactions(self, address: str, limit: int=0):
         try:
             return self.wallet.token_transactions(address, limit)
         except Exception as exception:
             raise ValueError(f"Error while running get token transactions, {str(exception)}")
     
-    def get_xrp_transactions(self, address:str, limit: int=None):
+    def get_xrp_transactions(self, address:str, limit: int=0):
         try:
             return self.wallet.xrp_transactions(address, limit)
         except Exception as exception:
             raise ValueError(f"Error while running get xrp transactions, {str(exception)}")
 
-    def get_payment_transactions(self, address:str, limit: int=None):
+    def get_payment_transactions(self, address:str, limit: int=0):
         try:
             return self.wallet.payment_transactions(address, limit)
         except Exception as exception:
@@ -72,7 +69,7 @@ class XRPWalletClient():
         except Exception as exception:
             raise ValueError(f"Error while running get tokens, {str(exception)}")
     
-    def get_nfts(self, address: str, limit: int=None):
+    def get_nfts(self, address: str, limit: int=0):
         try:
             return self.wallet.account_nfts(address, limit)
         except Exception as exception:

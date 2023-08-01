@@ -233,19 +233,19 @@ class xObject(JsonRpcClient):
         return response
 
     def token_exists(self, token: str, issuer: str) -> dict:
-            response = {"token": token, "issuer": issuer, "exists": False}
-            # client = JsonRpcClient("https://xrplcluster.com") if mainnet else JsonRpcClient("https://s.altnet.rippletest.net:51234")
-            result = self.client.request(
-                GatewayBalances(
-                    account=issuer,
-                    ledger_index="validated"
-                )
-            ).result
-            if "obligations" in result:
-                obligations = result["obligations"]
-                for key, _ in obligations.items():
-                    if validate_hex_to_symbol(key) == validate_hex_to_symbol(token):
-                        response["token"] = validate_hex_to_symbol(key)
-                        response["issuer"] = issuer
-                        response["exists"] = True
-            return response
+        response = {"token": token, "issuer": issuer, "exists": False}
+        # client = JsonRpcClient("https://xrplcluster.com") if mainnet else JsonRpcClient("https://s.altnet.rippletest.net:51234")
+        result = self.client.request(
+            GatewayBalances(
+                account=issuer,
+                ledger_index="validated"
+            )
+        ).result
+        if "obligations" in result:
+            obligations = result["obligations"]
+            for key, _ in obligations.items():
+                if validate_hex_to_symbol(key) == validate_hex_to_symbol(token):
+                    response["token"] = validate_hex_to_symbol(key)
+                    response["issuer"] = issuer
+                    response["exists"] = True
+        return response

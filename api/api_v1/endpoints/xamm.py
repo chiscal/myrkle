@@ -179,7 +179,10 @@ def status(txid: str, network: str):
         mainnet = False
     return client.status(txid, mainnet)
 
-@router.get('/token-exists/{token}/{issuer}/', response_model=Dict)
-def token_exists(token: str, issuer: str):
-    client = XammFinance(main_url, main_account, main_txns)
+@router.get('/token-exists/{token}/{issuer}/{network}', response_model=Dict)
+def token_exists(token: str, issuer: str, network: str):
+    if network == "mainnet":
+        client = XammFinance(main_url, main_account, main_txns)
+    else:
+        client = XammFinance(test_url, test_account, test_txns)
     return client.token_exists(token, issuer)
