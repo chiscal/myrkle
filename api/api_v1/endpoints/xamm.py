@@ -66,20 +66,22 @@ def create_order_book_liquidity(
     except Exception as exception:
         raise HTTPException(status_code=400, detail=str(exception))
 
-@router.post("/get-account-order-book-liquidity/", response_model=Any)   
+@router.get("/get-account-order-book-liquidity/{network}/{wallet_addr}/{limit}", response_model=Any)   
 def get_account_order_book_liquidity(
     *,
-    transaction: xamm.GetAccountOrderBookLiquidity
+    network: str,
+    wallet_addr: str,
+    limit : int = 0
     ):
 
-    if transaction.network == "testnet":
+    if network == "testnet":
         client = XammFinance(test_url, test_account, test_txns)
     else:
         client = XammFinance(main_url, main_account, main_txns)
     try:
         return client.get_account_order_book_liquidity(
-            transaction.wallet_addr,
-            transaction.limit,
+            wallet_addr,
+            limit,
         )
     except Exception as exception:
         raise HTTPException(status_code=400, detail=str(exception))
@@ -166,10 +168,16 @@ def sort_best_offer(*,
         raise HTTPException(status_code=400, detail=str(exception))
 
 
-@router.get('/token-balance/{wallet_address}/{name}/{issuer_address}', response_model=List)
+@router.get(
+    '/token-balance/{wallet_address}/{name}/{issuer_address}',
+    response_model=List
+)
 def token_balance(wallet_address: str,name: str, issuer_address: str):
     client = XammFinance(main_url, main_account, main_txns)
-    return client.token_balance(wallet_address, name, issuer_address)
+    try:
+        return client.token_balance(wallet_address, name, issuer_address)
+    except Exception as exception:
+        raise HTTPException(400, detail=exception)
     
 @router.get('/status/{txid}/{network}/', response_model=List)
 def status(txid: str, network: str):

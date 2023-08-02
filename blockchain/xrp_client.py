@@ -49,31 +49,42 @@ class XRPWalletClient():
         try:
             return self.wallet.token_transactions(address, limit)
         except Exception as exception:
-            raise ValueError(f"Error while running get token transactions, {str(exception)}")
+            raise ValueError(
+                f"Error while running get token transactions,\
+                {str(exception)}"
+            )
     
     def get_xrp_transactions(self, address:str, limit: int=0):
         try:
             return self.wallet.xrp_transactions(address, limit)
         except Exception as exception:
-            raise ValueError(f"Error while running get xrp transactions, {str(exception)}")
+            raise ValueError(
+                f"Error while running get xrp transactions, {str(exception)}"
+            )
 
     def get_payment_transactions(self, address:str, limit: int=0):
         try:
             return self.wallet.payment_transactions(address, limit)
         except Exception as exception:
-            raise ValueError(f"Error while running get payment transactions, {str(exception)}")
+            raise ValueError(
+                f"Error while running get payment transactions, {str(exception)}"
+            )
 
     def get_tokens(self, address: str):
         try:
             return self.wallet.account_tokens(address)
         except Exception as exception:
-            raise ValueError(f"Error while running get tokens, {str(exception)}")
+            raise ValueError(
+                f"Error while running get tokens, {str(exception)}"
+            )
     
     def get_nfts(self, address: str, limit: int=0):
         try:
             return self.wallet.account_nfts(address, limit)
         except Exception as exception:
-            raise ValueError(f"Error while running get nfts, {str(exception)}")
+            raise ValueError(
+                f"Error while running get nfts, {str(exception)}"
+            )
 
     def get_root_flags(self, address: str):
         try:
@@ -82,23 +93,46 @@ class XRPWalletClient():
             raise ValueError(f"Error while running get root flags, {str(exception)}")
     
     # senders
-    def send_xrp(self, sender_addr: str, receiver_addr: str, amount: Union[float, Decimal, int],
-        destination_tag: int = None, source_tag: int = None, fee: str = None):
+    def send_xrp(
+        self, sender_addr: str, receiver_addr: str,
+        amount: Union[float, Decimal, int],
+        destination_tag: int = 0,
+        source_tag: int = 0, fee: str = ""):
         try:
-            return self.wallet.send_xrp(sender_addr, receiver_addr, amount, destination_tag, source_tag, fee)
+            # Todo: replace source_tag with Nemo
+            return self.wallet.send_xrp(
+                sender_addr, receiver_addr, amount,
+                destination_tag, source_tag, fee
+            )
         except Exception as exception:
             raise ValueError(f"Error while running send xrp, {str(exception)}")
     
-    def send_token(self, sender_addr: str, receiver_addr: str, token: str, amount: str, issuer: str, is_lp_token: bool = False,
-        destination_tag: int = None, source_tag: int = None, fee: str = None) -> dict:
+    def send_token(
+        self, sender_addr: str, receiver_addr: str, token: str,
+        amount: str, issuer: str, is_lp_token: bool = False,
+        destination_tag: int = 0, source_tag: int = 0, fee: str = ""
+        ) -> dict:
         try:
-            return self.wallet.send_token(sender_addr, receiver_addr, token, amount, issuer, is_lp_token, destination_tag, source_tag, fee)
+            # Todo: replace destination_tag with Nemo 
+            return self.wallet.send_token(
+                sender_addr, receiver_addr,
+                token, amount,
+                issuer, is_lp_token,
+                destination_tag, source_tag, fee
+            )
         except Exception as exception:
             raise ValueError(f"Error while running send token, {str(exception)}")
     
-    def send_nft(self, sender_addr: str, nftoken_id: str, receiver: str, fee: str = None):
+    def send_nft(
+            self, sender_addr: str,
+            nftoken_id: str, receiver: str, fee: str = ""
+        ):
         try:
-            return self.wallet.send_nft(sender_addr, nftoken_id, receiver, fee)
+            memo = ""
+            return self.wallet.send_nft(
+                sender_addr, nftoken_id,
+                receiver, memo, fee
+            )
         except Exception as exception:
             raise ValueError(f"Error while running send nft, {str(exception)}")
     
@@ -877,21 +911,30 @@ class XammFinance():
         except Exception as exception:
             raise ValueError(f"Error running, {exception}")
     
-    def cancel_offer(self, sender_addr: str, offer_seq: int, fee: str = None) -> dict:
+    def cancel_offer(self, sender_addr: str, offer_seq: int, fee: str = "") -> dict:
         """cancel an offer"""
         try:
             return self.xAmm.cancel_offer(sender_addr, offer_seq, fee)
         except Exception as exception:
             raise ValueError(f"Error running cancel offer, {exception}")
 
-    def create_order_book_liquidity(self, sender_addr: str, buy, sell, expiry_date: int = None, fee: str = None, buy_type="xrp", sell_type="xrp", buy_issuer = None, sell_issuer = None) -> dict:
-        """create an offer as passive; it doesn't immediately consume offers that match it, just stays on the ledger as an object for liquidity"""
+    def create_order_book_liquidity(
+            self, sender_addr: str, buy: float, sell: float,
+            expiry_date: int = 0, fee: str = "", buy_type="xrp",
+            sell_type="xrp", buy_issuer: str = "", sell_issuer: str = ""
+        ) -> dict:
+        """create an offer as passive;
+        it doesn't immediately consume offers that match it,
+        just stays on the ledger as an object for liquidity"""
         try:
             if buy_type == "xrp" and sell_type == "xrp":
-                return self.xAmm.create_order_book_liquidity(sender_addr, buy, sell, expiry_date, fee)
+                return self.xAmm.create_order_book_liquidity(
+                    sender_addr, buy, sell, expiry_date, fee
+                )
             elif buy_type == "xrp" and sell_type != "xrp":
                 return self.xAmm.create_order_book_liquidity(
-                    sender_addr, buy, IssuedCurrencyAmount(sell_type, sell_issuer, sell), expiry_date,
+                    sender_addr, buy,
+                    IssuedCurrencyAmount(sell_type, sell_issuer, sell), expiry_date,
                     fee
                 )
             elif buy_type != "xrp" and sell_type == "xrp":
@@ -908,27 +951,36 @@ class XammFinance():
         except Exception as exception:
             raise ValueError(f"Error running create order book liquidity, {exception}")
 
-    def get_account_order_book_liquidity(self, wallet_addr: str, limit: int = None) -> list:
+    def get_account_order_book_liquidity(
+            self, wallet_addr: str, limit: int = 0
+        ) -> list:
         """return all offers that are liquidity an account created"""
         try:
             return self.xAmm.get_account_order_book_liquidity(wallet_addr, limit)
         except Exception as exception:
-            raise ValueError(f"Error running get account order book liquidity, {exception}")
+            raise ValueError(
+                f"Error running get account order book liquidity, {exception}"
+            )
 
 
     def order_book_swap(
             self, sender_addr: str, buy: Union[float, IssuedCurrencyAmount],
             sell: Union[float, IssuedCurrencyAmount],
             tf_sell: bool = False, tf_fill_or_kill: bool = False,
-            tf_immediate_or_cancel: bool = False, fee: str = None, buy_issuer = None,
-            sell_issuer = None, buy_type = None, sell_type = None
+        tf_immediate_or_cancel: bool = False, fee: str = "", buy_issuer: str = "",
+        sell_issuer: str = "", buy_type: str = "", sell_type: str = ""
         ) -> dict:
         try:
             if buy_type == "xrp" and sell_type == "xrp":
-                return self.xAmm.order_book_swap(sender_addr, buy, sell, tf_sell, tf_fill_or_kill, fee)
+                return self.xAmm.order_book_swap(
+                    sender_addr, buy, sell, tf_sell, tf_fill_or_kill,
+                    tf_immediate_or_cancel, fee
+                )
             elif buy_type == "xrp" and sell_type != "xrp":
                 return self.xAmm.order_book_swap(
-                    sender_addr, buy, IssuedCurrencyAmount(sell_type, sell_issuer, sell), tf_sell, tf_fill_or_kill,
+                    sender_addr, buy,
+                    IssuedCurrencyAmount(sell_type, sell_issuer, sell),
+                    tf_sell, tf_fill_or_kill,
                     tf_immediate_or_cancel, fee
                 )
             elif buy_type != "xrp" and sell_type == "xrp":
@@ -968,7 +1020,7 @@ class XammFinance():
                     XRP, best_buy, limit
                 )
             elif buy != "xrp" and sell != "xrp":
-                return self.xAmm.order_book_swap(
+                return self.xAmm.sort_best_offer(
                     IssuedCurrency(buy, buy_issuer),
                     IssuedCurrency(sell, sell_issuer), best_buy,
                     limit
@@ -977,7 +1029,10 @@ class XammFinance():
             raise ValueError(f"Error running sort best offer, {exception}")
     
     def token_balance(self, wallet_addr: str, name: str, issuer_addr: str) -> List:
-        return self.xAmm.token_balance(wallet_addr, name, issuer_addr)
+        try:
+            return self.xAmm.token_balance(wallet_addr, name, issuer_addr)
+        except Exception as exception:
+            raise ValueError(f"Error running token balance, {exception}")
 
     def status(self, txid: str, mainnet: bool = True) -> dict:
         return self.xAmm.status(txid, mainnet)

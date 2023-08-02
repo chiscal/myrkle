@@ -9,7 +9,9 @@ from schemas.xamm import XAMMWallet as XAMMWALLETSCHEMA
 
 class CRUDUser(CRUDBase[XAMMWallet, XAMMWALLETSCHEMA, XAMMWALLETSCHEMA]):
     def get_by_address(self, db: Session, *, wallet_addr: str) -> Optional[XAMMWallet]:
-        return db.query(XAMMWallet).filter(XAMMWallet.wallet_addr == wallet_addr).first()
+        return db.query(
+            XAMMWallet
+        ).filter(XAMMWallet.wallet_addr == wallet_addr).first()
 
     def create(self, db: Session, *, obj_in: XAMMWALLETSCHEMA) -> XAMMWallet:
         db_obj = XAMMWallet(
@@ -23,7 +25,8 @@ class CRUDUser(CRUDBase[XAMMWallet, XAMMWALLETSCHEMA, XAMMWALLETSCHEMA]):
         return db_obj
 
     def update(
-        self, db: Session, *, db_obj: XAMMWallet, obj_in: Union[XAMMWALLETSCHEMA, Dict[str, Any]]
+        self, db: Session, *,
+        db_obj: XAMMWallet, obj_in: Union[XAMMWALLETSCHEMA, Dict[str, Any]]
     ) -> XAMMWallet:
         if isinstance(obj_in, dict):
             update_data = obj_in
