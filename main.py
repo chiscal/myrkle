@@ -1,9 +1,9 @@
-# import asyncio
+import asyncio
 
 import time
 from fastapi import FastAPI,  WebSocket, WebSocketDisconnect
 from starlette.middleware.cors import CORSMiddleware
-from blockchain.xrp_client import XRPWalletClient
+from blockchain.xrp_client import XRPWalletClient, XammFinance
 
 # from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 # from websockets.exceptions import ConnectionClosedError, ConnectionClosedOK
@@ -16,8 +16,16 @@ from api.api_v1.api import api_router
 from core.config import settings
 
 import uvicorn
+from blockchain.xrp.x_constants import XURLS_
 # import os
 # from blockchain.xrp_client import XRPWalletClient
+
+test_url = XURLS_["TESTNET_URL"]
+test_txns = XURLS_["TESTNET_TXNS"]
+test_account =  XURLS_["TESTNET_ACCOUNT"]
+main_url = XURLS_["MAINNET_URL"]
+main_txns = XURLS_["MAINNET_TXNS"]
+main_account = XURLS_["MAINNET_ACCOUNT"]
 
 app = FastAPI(
     title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json"
@@ -64,10 +72,141 @@ async def get_wallet_balance(websocket: WebSocket, wallet_address: str):
         while True:
             await websocket.send_text("Yamete")
             time.sleep(5)
-            await websocket.send_json(client.get_balance(wallet_address))
+            loop = asyncio.get_running_loop()
+            # test = client.get_balance(wallet_address)
+            loop.run_in_executor(None, lambda: asyncio.run(websocket.send_json(client.get_balance(wallet_address))))
+            # await websocket.send_json(test)
     except WebSocketDisconnect:
         print("Client disconnected")
 
+
+@app.websocket("/ws/get-account-order-book-liquidity/{wallet_addr}/{network}/{limit}")
+async def get_account_order_book_liquidity(websocket: WebSocket, wallet_addr: str, network: str = "mainnet", limit: int = 20):
+    client = XammFinance()
+    if network == "testnet":
+        client = XammFinance(test_url, test_account, test_txns)
+    await websocket.accept()
+    try:
+        while True:
+            await websocket.send_text("Loading")
+            time.sleep(5)
+            loop = asyncio.get_running_loop()
+            loop.run_in_executor(
+                None,
+                lambda: asyncio.run(
+                    websocket.send_json(
+                        client.get_account_order_book_liquidity(wallet_addr, limit)
+                        )
+                    )
+                )
+    except WebSocketDisconnect:
+        print("Client disconnected")
+
+
+@app.websocket("/ws/sort-best-offer/{network}")
+async def get_account_order_book_liquidity(websocket: WebSocket, network: str):
+    response = {}
+    client = XammFinance()
+    if network == "testnet":
+        client = XammFinance(test_url, test_account, test_txns)
+    await websocket.accept()
+    try:
+        while True:
+            data = await websocket.receive_json()
+            response = data
+            while len(response) > 0:
+                loop = asyncio.get_running_loop()
+                loop.run_in_executor(
+                    None,
+                    lambda: asyncio.run(
+                        websocket.send_json(
+                            client.sort_best_offer(
+                                    buy=response["buy"],
+                                    sell=response["sell"],
+                                    best_buy=response["best_buy"],
+                                    best_sell=response["best_sell"],
+                                    limit=response["limit"],
+                                    buy_issuer=response.get("buy_issuer"),
+                                    sell_issuer=response.get("sell_issuer")
+                                )
+                            )
+                        )
+                    )
+                time.sleep(5)
+    except WebSocketDisconnect:
+        print("Client disconnected")
+
+
+@app.websocket("/ws/token-balance/{wallet_addr}/{name}/{issuer_addr}/{network}")
+async def token_balance(websocket: WebSocket, wallet_addr: str, name: str, issuer_addr: str, network: str):
+    client = XammFinance()
+    if network == "testnet":
+        client = XammFinance(test_url, test_account, test_txns)
+    await websocket.accept()
+    try:
+        while True:
+            loop = asyncio.get_running_loop()
+            loop.run_in_executor(
+                None,
+                lambda: asyncio.run(
+                    websocket.send_json(
+                        client.token_balance(
+                                wallet_addr=wallet_addr,
+                                name=name,
+                                issuer_addr=issuer_addr,
+                            )
+                        )
+                    )
+                )
+            time.sleep(5)
+    except WebSocketDisconnect:
+        print("Client disconnected")
+
+
+@app.websocket("/ws/status/{txid}/{mainnet}/")
+async def status(websocket: WebSocket, txid: str, mainnet: bool):
+    client = XammFinance()
+    await websocket.accept()
+    try:
+        while True:
+            loop = asyncio.get_running_loop()
+            loop.run_in_executor(
+                None,
+                lambda: asyncio.run(
+                    websocket.send_json(
+                        client.status(
+                                txid=txid,
+                                mainnet=mainnet,
+                            )
+                        )
+                    )
+                )
+            time.sleep(5)
+    except WebSocketDisconnect:
+        print("Client disconnected")
+
+
+@app.websocket("/ws/token-exists/{token}/{issuer}/")
+async def status(websocket: WebSocket, token: str, issuer: str):
+    client = XammFinance()
+    await websocket.accept()
+    try:
+        while True:
+            loop = asyncio.get_running_loop()
+            loop.run_in_executor(
+                None,
+                lambda: asyncio.run(
+                    websocket.send_json(
+                        client.token_exists(
+                                token=token,
+                                issuer=issuer,
+                            )
+                        )
+                    )
+                )
+            time.sleep(5)
+    except WebSocketDisconnect:
+        print("Client disconnected")
 
 if __name__ == '__main__':
     uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)

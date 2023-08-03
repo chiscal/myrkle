@@ -16,6 +16,9 @@ from .xrp.xamm import xObject as XammObject
 test_url = XURLS_["TESTNET_URL"]
 test_txns = XURLS_["TESTNET_TXNS"]
 test_account =  XURLS_["TESTNET_ACCOUNT"]
+main_url = XURLS_["MAINNET_URL"]
+main_txns = XURLS_["MAINNET_TXNS"]
+main_account = XURLS_["MAINNET_ACCOUNT"]
 
 
 def transaction_status(txid, mainnet=False):
@@ -893,7 +896,7 @@ class XRPEngClient():
  
 
 class XammFinance():
-    def __init__(self, network_url, account_url, txn_url):
+    def __init__(self, network_url = main_url, account_url = main_account, txn_url= main_url):
         self.network_url = network_url
         self.account_url = account_url
         self.txn_url = txn_url
