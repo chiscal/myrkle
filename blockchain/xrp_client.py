@@ -934,18 +934,18 @@ class XammFinance():
             elif buy_type == "xrp" and sell_type != "xrp":
                 return self.xAmm.create_order_book_liquidity(
                     sender_addr, buy,
-                    IssuedCurrencyAmount(sell_type, sell_issuer, sell), expiry_date,
+                    IssuedCurrencyAmount(currency=sell_type, issuer=sell_issuer, value=sell), expiry_date,
                     fee
                 )
             elif buy_type != "xrp" and sell_type == "xrp":
                 return self.xAmm.create_order_book_liquidity(
-                    sender_addr, IssuedCurrencyAmount(buy_type, buy_issuer, buy),
+                    sender_addr, IssuedCurrencyAmount(currency=buy_type, issuer=buy_issuer, value=buy),
                     sell, expiry_date, fee
                 )
             elif buy_type != "xrp" and sell_type != "xrp":
                 return self.xAmm.create_order_book_liquidity(
                     sender_addr, IssuedCurrencyAmount(buy_type, buy_issuer, buy),
-                    IssuedCurrencyAmount(sell_type, sell_issuer, sell), expiry_date,
+                    IssuedCurrencyAmount(currency=sell_type, issuer=sell_issuer, value=sell), expiry_date,
                     fee
                 )
         except Exception as exception:
@@ -979,19 +979,19 @@ class XammFinance():
             elif buy_type == "xrp" and sell_type != "xrp":
                 return self.xAmm.order_book_swap(
                     sender_addr, buy,
-                    IssuedCurrencyAmount(sell_type, sell_issuer, sell),
+                    IssuedCurrencyAmount(currency=sell_type, issuer=sell_issuer, value=sell),
                     tf_sell, tf_fill_or_kill,
                     tf_immediate_or_cancel, fee
                 )
             elif buy_type != "xrp" and sell_type == "xrp":
                 return self.xAmm.order_book_swap(
-                    sender_addr, IssuedCurrencyAmount(buy_type, buy_issuer, buy),
+                    sender_addr, IssuedCurrencyAmount(currency=buy_type, issuer=buy_issuer, value=buy),
                     sell, tf_sell, tf_fill_or_kill, tf_immediate_or_cancel, fee
                 )
             elif buy_type != "xrp" and sell_type != "xrp":
                 return self.xAmm.order_book_swap(
-                    sender_addr, IssuedCurrencyAmount(buy_type, buy_issuer, buy),
-                    IssuedCurrencyAmount(sell_type, sell_issuer, sell), tf_sell, tf_fill_or_kill,
+                    sender_addr, IssuedCurrencyAmount(currency=buy_type, issuer=buy_issuer, value=buy),
+                    IssuedCurrencyAmount(currency=sell_type, issuer=sell_issuer, value=sell), tf_sell, tf_fill_or_kill,
                     tf_immediate_or_cancel, fee
                 )
         except Exception as exception:
@@ -1000,7 +1000,7 @@ class XammFinance():
     def sort_best_offer(
             self, buy: str,
             sell: str, best_buy: bool = False,
-            best_sell: bool = False, limit: int = None,
+            best_sell: bool = False, limit: int = 0,
             buy_issuer = None, sell_issuer = None) -> Dict:
         """
         return all available orders and best {option} first,
@@ -1011,19 +1011,19 @@ class XammFinance():
                 return self.xAmm.sort_best_offer(XRP, XRP, best_buy, best_sell, limit)
             elif buy == "xrp" and sell != "xrp":
                 return self.xAmm.sort_best_offer(
-                    XRP, IssuedCurrency(sell, sell_issuer), best_buy,
-                    limit
+                    XRP(), IssuedCurrency(currency=sell, issuer=sell_issuer), best_buy,
+                    best_sell, limit
                 )
             elif buy != "xrp" and sell == "xrp":
                 return self.xAmm.sort_best_offer(
-                    IssuedCurrency(buy, buy_issuer),
-                    XRP, best_buy, limit
+                    IssuedCurrency(currency=buy, issuer=buy_issuer),
+                    XRP(), best_buy, best_sell, limit
                 )
             elif buy != "xrp" and sell != "xrp":
                 return self.xAmm.sort_best_offer(
-                    IssuedCurrency(buy, buy_issuer),
-                    IssuedCurrency(sell, sell_issuer), best_buy,
-                    limit
+                    IssuedCurrency(currency=buy, issuer=buy_issuer),
+                    IssuedCurrency(currency=sell, issuer=sell_issuer), best_buy,
+                    best_sell, limit
                 )
         except Exception as exception:
             raise ValueError(f"Error running sort best offer, {exception}")

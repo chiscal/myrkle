@@ -155,7 +155,7 @@ def sort_best_offer(*,
     else:
         client = XammFinance(main_url, main_account, main_txns)
     try:
-        return client.sort_best_offer(
+        offer =  client.sort_best_offer(
             transaction.buy,
             transaction.sell,
             transaction.best_buy,
@@ -164,6 +164,7 @@ def sort_best_offer(*,
             transaction.buy_issuer,
             transaction.sell_issuer,
         )
+        return offer
     except Exception as exception:
         raise HTTPException(status_code=400, detail=str(exception))
 
