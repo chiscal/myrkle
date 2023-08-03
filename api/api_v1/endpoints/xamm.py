@@ -1,5 +1,6 @@
 from typing import Any, Dict, Union, List
 from fastapi import APIRouter, HTTPException, Depends
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 import crud
 from api import deps
@@ -101,34 +102,13 @@ def get_pre_order_book(wallet_address: str, db: Session = Depends(deps.get_db)):
 @router.post("/order-book-swap/", response_model=Any)
 def order_book_swap(
     *,
-    db: Session = Depends(deps.get_db),
     transaction: xamm.OrderBookSwap
     ):
-    if transaction.network == "testnet":
-        client = XammFinance(test_url, test_account, test_txns)
-    else:
-        client = XammFinance(main_url, main_account, main_txns)
     try:
-        wallet = xamm.XAMMWallet
-        wallet.wallet_addr = transaction.sender_addr
-        wallet.tf_fill_or_kill = transaction.tf_fill_or_kill
-        wallet.tf_sell = transaction.tf_sell
-        wallet.tf_immediate_or_cancel = transaction.tf_immediate_or_cancel
-        
-        wallet_info = crud.xamm_wallet.get_by_address(
-            db, wallet_addr=transaction.sender_addr
-        )
-        if wallet_info:
-            crud.xamm_wallet.update(
-                db,
-                db_obj=wallet_info,
-                obj_in=wallet
-            )
-        else: 
-            crud.xamm_wallet.create(
-                db,
-                obj_in=wallet
-            )
+        if transaction.network == "testnet":
+            client = XammFinance(test_url, test_account, test_txns)
+        else:
+            client = XammFinance(main_url, main_account, main_txns)
         
         return client.order_book_swap(
             transaction.sender_addr,
