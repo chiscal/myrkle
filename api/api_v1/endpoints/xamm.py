@@ -87,17 +87,6 @@ def get_account_order_book_liquidity(
     except Exception as exception:
         raise HTTPException(status_code=400, detail=str(exception))
 
-@router.get("/order-book-swap/{wallet_address}", response_model=Union[xamm.XAMMWallet, Dict])
-def get_pre_order_book(wallet_address: str, db: Session = Depends(deps.get_db)):
-    wallet_info = crud.xamm_wallet.get_by_address(db, wallet_addr=wallet_address)
-    if wallet_info:
-        return wallet_info
-    return {
-        "wallet_addr": wallet_address,
-        "tf_sell": False,
-        "tf_fill_or_kill": False,
-        "tf_immediate_or_cancel": False,
-    }
 
 @router.post("/order-book-swap/", response_model=Any)
 def order_book_swap(
@@ -160,13 +149,18 @@ def token_balance(wallet_address: str,name: str, issuer_address: str):
     except Exception as exception:
         raise HTTPException(400, detail=exception)
     
-@router.get('/status/{txid}/{network}/', response_model=List)
+@router.get('/status/{txid}/{network}/', response_model=Any)
 def status(txid: str, network: str):
     mainnet = True
     client = XammFinance(main_url, main_account, main_txns)
     if network != "mainnet":
         mainnet = False
-    return client.status(txid, mainnet)
+    reponse = client.status(txid, mainnet)
+    if reponse:
+        if reponse.get("status_code") == 400:
+            return HTTPException(status_code=400, detail="Transaction not found")
+        return reponse
+    return HTTPException(status_code=400, detail="Transaction not found")
 
 @router.get('/token-exists/{token}/{issuer}/{network}', response_model=Dict)
 def token_exists(token: str, issuer: str, network: str):

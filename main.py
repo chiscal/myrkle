@@ -18,16 +18,7 @@ from api.api_v1.api import api_router
 from core.config import settings
 
 import uvicorn
-from blockchain.xrp.x_constants import XURLS_
-# import os
-# from blockchain.xrp_client import XRPWalletClient
 
-test_url = XURLS_["TESTNET_URL"]
-test_txns = XURLS_["TESTNET_TXNS"]
-test_account =  XURLS_["TESTNET_ACCOUNT"]
-main_url = XURLS_["MAINNET_URL"]
-main_txns = XURLS_["MAINNET_TXNS"]
-main_account = XURLS_["MAINNET_ACCOUNT"]
 
 app = FastAPI(
     title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json"

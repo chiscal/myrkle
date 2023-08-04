@@ -1038,7 +1038,8 @@ class XammFinance():
             raise ValueError(f"Error running token balance, {exception}")
 
     def status(self, txid: str, mainnet: bool = True) -> dict:
-        return self.xAmm.status(txid, mainnet)
+        response = self.xAmm.status(txid, mainnet)
+        return response
     
     def token_exists(self, token: str, issuer: str) -> dict:
         return self.xAmm.token_exists(token, issuer)

@@ -5,7 +5,7 @@ from xrpl.clients import JsonRpcClient
 from xrpl.models import (XRP, AccountOffers, BookOffers,
                          IssuedCurrency,
                          IssuedCurrencyAmount, OfferCancel,
-                         OfferCreate, AccountLines, OfferCreate, OfferCreateFlag, Tx)
+                         OfferCreate, AccountLines, OfferCreate, OfferCreateFlag, Tx, GatewayBalances)
 
 from xrpl.utils import drops_to_xrp, ripple_time_to_datetime, xrp_to_drops
 
@@ -230,4 +230,15 @@ class xObject(JsonRpcClient):
             response = result["meta"]["TransactionResult"]
         return response
 
-
+    def token_exists(self, token: str, issuer: str) -> dict:
+        response = {"token": token, "issuer": issuer, "exists": False}
+        # client = JsonRpcClient("https://xrplcluster.com") if mainnet else JsonRpcClient("https://s.altnet.rippletest.net:51234")
+        result = self.client.request(GatewayBalances(account=issuer, ledger_index="validated")).result
+        if "obligations" in result:
+            obligations = result["obligations"]
+            for key, value in obligations.items():
+                if validate_hex_to_symbol(key) == validate_hex_to_symbol(token):
+                    response["token"] = validate_hex_to_symbol(key)
+                    response["issuer"] = issuer
+                    response["exists"] = True
+        return response
