@@ -140,7 +140,7 @@ def sort_best_offer(*,
 
 @router.get(
     '/token-balance/{wallet_address}/{name}/{issuer_address}',
-    response_model=List
+    response_model=Any
 )
 def token_balance(wallet_address: str,name: str, issuer_address: str):
     client = XammFinance(main_url, main_account, main_txns)
