@@ -11,7 +11,7 @@ from .xrp.Nft import xNFT
 from .xrp.Objects import xObject
 from .xrp.Wallet import xWallet
 from .xrp.x_constants import XURLS_
-from .xrp.xamm import xObject as XammObject
+from .xrp.xamm import xObject as XammObject, sort_best_offer as Xsort_best_offer
 
 test_url = XURLS_["TESTNET_URL"]
 test_txns = XURLS_["TESTNET_TXNS"]
@@ -1000,33 +1000,35 @@ class XammFinance():
         except Exception as exception:
             raise ValueError(f"Error running create order book liquidity, {exception}")
 
-    def sort_best_offer(
+    async def sort_best_offer(
             self, buy: str,
             sell: str, best_buy: bool = False,
-            best_sell: bool = False, limit: int = 0,
-            buy_issuer = None, sell_issuer = None) -> Dict:
+            best_sell: bool = False,
+            buy_issuer = None, sell_issuer = None,
+            mainnet = True
+        ) -> Dict:
         """
         return all available orders and best {option} first,
         choose either best_buy or best_sell
         """
         try:
             if buy == "xrp" and sell == "xrp":
-                return self.xAmm.sort_best_offer(XRP, XRP, best_buy, best_sell, limit)
+                return await Xsort_best_offer(XRP(), XRP(), best_buy, best_sell, mainnet)
             elif buy == "xrp" and sell != "xrp":
-                return self.xAmm.sort_best_offer(
+                return await Xsort_best_offer(
                     XRP(), IssuedCurrency(currency=sell, issuer=sell_issuer), best_buy,
-                    best_sell, limit
+                    best_sell, mainnet
                 )
             elif buy != "xrp" and sell == "xrp":
-                return self.xAmm.sort_best_offer(
+                return await Xsort_best_offer(
                     IssuedCurrency(currency=buy, issuer=buy_issuer),
-                    XRP(), best_buy, best_sell, limit
+                    XRP(), best_buy, best_sell, mainnet
                 )
             elif buy != "xrp" and sell != "xrp":
-                return self.xAmm.sort_best_offer(
+                return await self.xAmm.sort_best_offer(
                     IssuedCurrency(currency=buy, issuer=buy_issuer),
                     IssuedCurrency(currency=sell, issuer=sell_issuer), best_buy,
-                    best_sell, limit
+                    best_sell, mainnet
                 )
         except Exception as exception:
             raise ValueError(f"Error running sort best offer, {exception}")
@@ -1037,9 +1039,12 @@ class XammFinance():
         except Exception as exception:
             raise ValueError(f"Error running token balance, {exception}")
 
-    def status(self, txid: str, mainnet: bool = True) -> dict:
-        response = self.xAmm.status(txid, mainnet)
+    def status(self, txid: str) -> dict:
+        response = self.xAmm.status(txid)
         return response
     
     def token_exists(self, token: str, issuer: str) -> dict:
         return self.xAmm.token_exists(token, issuer)
+
+    def pending_offers(self, wallet_addr: str) -> list:
+        return self.xAmm.pending_offers(wallet_addr)

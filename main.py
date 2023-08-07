@@ -5,14 +5,8 @@ import concurrent.futures
 import time
 from fastapi import FastAPI,  WebSocket, WebSocketDisconnect
 from starlette.middleware.cors import CORSMiddleware
-from blockchain.xrp_client import XRPWalletClient, XammFinance
+from blockchain.xrp_client import XammFinance
 
-# from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
-# from websockets.exceptions import ConnectionClosedError, ConnectionClosedOK
-# from notification.websocket_manager import manager
-# from notification.messaging_bq import mq
-
-# from api.deps import get_current_user
 
 from api.api_v1.api import api_router
 from core.config import settings
@@ -35,6 +29,26 @@ if settings.BACKEND_CORS_ORIGINS:
     )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+
+@app.websocket("/ws/sort-best-offer")
+async def sort_best_offer(websocket: WebSocket):
+    await websocket.accept()
+    while True:
+        data = await websocket.receive_json()
+        client = XammFinance()
+        best_offer = await client.sort_best_offer(
+            data["buy"],
+            data["sell"],
+            data["best_buy"],
+            data["best_sell"],
+            data["buy_issuer"],
+            data["sell_issuer"],
+            data["mainnet"],
+        )
+        await websocket.send_json(
+            best_offer
+        )
 
 if __name__ == '__main__':
     uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)

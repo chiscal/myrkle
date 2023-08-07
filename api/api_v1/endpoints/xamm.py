@@ -72,7 +72,7 @@ def get_account_order_book_liquidity(
     *,
     network: str,
     wallet_addr: str,
-    limit : int = 0
+    limit : int = 30
     ):
 
     if network == "testnet":
@@ -115,57 +115,40 @@ def order_book_swap(
     except Exception as exception:
         raise HTTPException(status_code=400, detail=str(exception))
 
-@router.post("/sort-best-offer/", response_model=Any)
-def sort_best_offer(*,
-    transaction: xamm.SortBestOffer
-    ):
-    if transaction.network == "testnet":
-        client = XammFinance(test_url, test_account, test_txns)
-    else:
-        client = XammFinance(main_url, main_account, main_txns)
-    try:
-        offer =  client.sort_best_offer(
-            transaction.buy,
-            transaction.sell,
-            transaction.best_buy,
-            transaction.best_sell,
-            transaction.limit,
-            transaction.buy_issuer,
-            transaction.sell_issuer,
-        )
-        return offer
-    except Exception as exception:
-        raise HTTPException(status_code=400, detail=str(exception))
-
 
 @router.get(
     '/token-balance/{wallet_address}/{name}/{issuer_address}',
     response_model=Any
 )
-def token_balance(wallet_address: str,name: str, issuer_address: str):
+def token_balance(wallet_address: str, name: str, issuer_address: str):
     client = XammFinance(main_url, main_account, main_txns)
     try:
         return client.token_balance(wallet_address, name, issuer_address)
     except Exception as exception:
         raise HTTPException(400, detail=exception)
     
-@router.get('/status/{txid}/{network}/', response_model=Any)
-def status(txid: str, network: str):
-    mainnet = True
+@router.get('/status/{txid}/', response_model=Any)
+def status(txid: str):
     client = XammFinance(main_url, main_account, main_txns)
-    if network != "mainnet":
-        mainnet = False
-    reponse = client.status(txid, mainnet)
+    reponse = client.status(txid)
     if reponse:
         if reponse.get("status_code") == 400:
             return HTTPException(status_code=400, detail="Transaction not found")
         return reponse
     return HTTPException(status_code=400, detail="Transaction not found")
 
-@router.get('/token-exists/{token}/{issuer}/{network}', response_model=Dict)
-def token_exists(token: str, issuer: str, network: str):
+@router.get('/token-exists/{token}/{issuer}/{network}', response_model=Any)
+def token_exists(token: str, issuer: str, network: str = "mainnet"):
     if network == "mainnet":
         client = XammFinance(main_url, main_account, main_txns)
     else:
         client = XammFinance(test_url, test_account, test_txns)
     return client.token_exists(token, issuer)
+
+@router.get('/pending-offers/{wallet_addr}/{network}', response_model=Any)
+def token_exists(wallet_addr: str, network: str = "mainnet"):
+    if network == "mainnet":
+        client = XammFinance(main_url, main_account, main_txns)
+    else:
+        client = XammFinance(test_url, test_account, test_txns)
+    return client.pending_offers(wallet_addr)
